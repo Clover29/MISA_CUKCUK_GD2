@@ -1,0 +1,41 @@
+.header{
+    display: flex;
+    padding: 12px 24px 12px 10px;
+    justify-content: space-between;
+    background-color: #0072BC;
+    height: 48px;
+    width: 100%;
+}
+.header__left{
+    display: flex;
+    align-items: center;
+}
+.header__logo{
+    display: flex;
+    align-items: center;
+}
+.img__logo{
+height: 32px;
+margin-right: 36px;
+}
+.header__right{
+    display: flex;
+    align-items: center;
+    margin-right: 12px;
+}
+.version{
+   margin: 0 24px;
+}
+.combobox{
+background-color: #04426b;
+height: 24px!important;
+margin-top: 0!important;
+padding-right: 8px;
+}
+.combox__input{
+    background-color: transparent;
+    border-color: transparent!important;
+}
+.combox__input::placeholder{
+    color: #fff;
+}

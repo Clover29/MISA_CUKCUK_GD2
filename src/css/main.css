@@ -1,0 +1,38 @@
+@import url(./base/icon.css);
+@import url(./base/title.css);
+@import url(./base/button.css);
+@import url(./base/table.css);
+*{
+    text-decoration: none;
+    margin: 0;
+    padding: 0;
+    font-family: Tahoma;
+    font-size: 13px;
+    box-sizing: border-box;
+    color: #000;
+    height: 100%;
+    outline: none;
+}
+body {
+    overflow: hidden;
+    background: #f4f5f8;
+    overflow-x: unset;
+    max-width: 100%;
+}
+.title__body{
+    height: 13px;
+    color: #fff;
+}
+.main{
+    display: flex;
+}
+.col__width_34{
+    width: 34%;
+    margin-right: 8px;
+}
+.col_width_70{
+    width: 70%;
+}
+.col_width_100{
+    width: 100%;
+}

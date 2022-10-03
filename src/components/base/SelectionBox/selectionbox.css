@@ -1,0 +1,76 @@
+.selectionbox{
+    position: relative;
+    display: flex;
+    height: fit-content;
+}
+.table__header--box{
+     margin-top: 6px;
+     height: 28px;
+}
+.select__input{
+    border: 1px solid #ccc;
+    padding: 10px;
+}
+.select__input:focus-visible{
+    outline: none;
+}
+.select__input:focus{
+    border-color: #0072BC;
+}
+.select_page{
+    width: 54px;
+    height: 22px;
+    border: none;
+    margin: 0 8px;
+}
+.dropdown_page_position{
+    right: 11px!important;
+    top: 2px!important;
+}
+.position__plus{
+    position: absolute;
+    right: 0px;
+    top: 7px
+}
+.position__dropdown--21{
+    right: 21px!important;
+}
+.position__dropdown--9{
+    right: 9px!important;
+}
+.select__form--height{
+height: 30px;
+margin: 0;
+}
+
+.combobox__option--row:hover{
+    color: #0072BC;
+    background-color: #ebedf0;
+}
+.combobox__highlight{
+    color: #fff;
+    background-color: #0072BC;
+}
+.combobox__option {
+    position: fixed;
+    background: #fff;
+    padding: 2px 1px;
+    border-radius: 2px;
+    border: 1px solid #babec5;
+    height: fit-content;
+}
+
+.paging__position {
+    position: relative;
+    bottom: 65px;
+    right: 61px;
+}
+.fillter__position{
+    position: fixed;
+    top: 219px;
+}
+.combobox__option--row {
+    padding: 5px 10px;
+    cursor: pointer;
+    text-align: left;
+}

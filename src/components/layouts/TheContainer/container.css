@@ -1,0 +1,14 @@
+.container{
+    background-color: #fff;
+    padding: 0 20px;
+    box-sizing: border-box;
+    width: 100%;
+    height: calc(100vh - 48px);
+    color: #000;
+}
+.content__tittle{
+    display: flex;
+    justify-content: space-between;
+    padding: 24px 0px 11px 0px;
+    height: fit-content;
+}

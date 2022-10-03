@@ -1,0 +1,14 @@
+.title{
+    font-size: 22px;
+}
+.label{
+    margin-right: 24px;
+    cursor: pointer;
+}
+.form__title{
+    color: #fff;
+    font-weight: 700;
+}
+.input--required{
+    color: #f00;
+}

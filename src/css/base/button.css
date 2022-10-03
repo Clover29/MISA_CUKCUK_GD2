@@ -1,0 +1,21 @@
+.btn{
+    border: 1px solid #CCCCCC;
+    border-radius: 2px;
+    height: 28px;
+    padding: 5px 10px;
+    cursor: pointer;
+    background-color: #fafafa;
+}
+.btn:hover, btn:active{
+    background-color: #E4F2EA;
+    border-color:#0072BC ;
+}
+.btn:focus-visible{
+    outline: none;
+    border:1px solid #0072BC ;
+}
+.btn:disabled{
+    background-color: #FAFAFA;
+   border-color: #CCCC;
+   opacity: 30%;
+}
