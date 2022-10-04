@@ -74,6 +74,31 @@ namespace MISA.CUKCUK.VTHYEN.Controller.Controllers
 
         }
 
+        /// <summary>
+        /// Lấy mã nhân viên tự động tăng
+        /// </summary>
+        /// <returns>
+        /// Mã nhân viên tự động tăng
+        /// </returns>
+        ///  Created by: VTHYEN (04/10/2022)
+        [HttpGet("new-code")]
+        [SwaggerResponse(StatusCodes.Status200OK, type: typeof(string))]
+        [SwaggerResponse(StatusCodes.Status400BadRequest)]
+        [SwaggerResponse(StatusCodes.Status500InternalServerError)]
+        public IActionResult GetNewEmployeeCode(string MatterialName)
+        {
+            try
+            {
+                string newCode = _materialBL.GetNewCode(MatterialName);
+                return StatusCode(StatusCodes.Status200OK, newCode);
+            }
+            catch (Exception exception)
+            {
+                Console.WriteLine(exception.Message);
+                return StatusCode(StatusCodes.Status500InternalServerError, exception.Message);
+            }
+
+        }
         #endregion
     }
 }

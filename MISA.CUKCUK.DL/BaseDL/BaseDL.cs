@@ -1,4 +1,5 @@
 ﻿using Dapper;
+using MISA.CUKCUK.Common.Entities;
 using MISA.CUKCUK.Common.Ultilities;
 using MySqlConnector;
 using System;
@@ -54,29 +55,52 @@ namespace MISA.CUKCUK.DL.BaseDL
 
         public int InsertOneRecord(T record)
         {
+            int numberOfAffectedRows = 0;
             string tableName = EntityUltilities.getTableName<T>();
             string storedProcedureName = $"Proc_{tableName}_Insert";
             var propertyID = $"v_{tableName}ID";
             var properties = typeof(T).GetProperties();
             var parameters = new DynamicParameters();
             var recordID = Guid.NewGuid();
+            List<ConversionUnit> unitValue = new List<ConversionUnit>();
             foreach (var property in properties)
             {
-
                 string propertyName = $"v_{property.Name}";
-                if (property.Name != "ConversionUnits")
+                if (property.Name == "ConversionUnits")
                 {
-                    var propertyValue = (propertyName.ToLower() == propertyID.ToLower()) ? recordID : property.GetValue(record);
-
-                    parameters.Add(propertyName, propertyValue);
+                     unitValue = (List<ConversionUnit>)property.GetValue(record);
+                    continue;
                 }
-
-
+                var propertyValue = (propertyName.ToLower() == propertyID.ToLower()) ? recordID : property.GetValue(record);
+                parameters.Add(propertyName, propertyValue);
             }
             using (var mySqlConnection = new MySqlConnection(DatabaseContext.ConnectionString))
             {
-                return mySqlConnection.Execute(storedProcedureName, parameters, commandType: System.Data.CommandType.StoredProcedure);
+                numberOfAffectedRows += mySqlConnection.Execute(storedProcedureName, parameters, commandType: System.Data.CommandType.StoredProcedure);
             }
+            if (unitValue != null)
+            {
+                var conversionUnitParameters = new DynamicParameters();
+                foreach (ConversionUnit unit in unitValue)
+                {
+                    string procedureConversionUnit = "Proc_conversionunit_Insert";
+                    var ConversionUnitProperties = typeof(ConversionUnit).GetProperties();
+                    string variableName = "v_MaterialID";
+                    var variableValue = recordID;
+                    conversionUnitParameters.Add(variableName, variableValue);
+                    foreach (var item in ConversionUnitProperties)
+                    {
+                        string itemName = $"v_{item.Name}";
+                        var itemValue = item.GetValue(unit);
+                        conversionUnitParameters.Add(itemName, itemValue);
+                    }
+                    using (var mySqlConnection = new MySqlConnection(DatabaseContext.ConnectionString))
+                    {
+                        numberOfAffectedRows += mySqlConnection.Execute(procedureConversionUnit, conversionUnitParameters, commandType: System.Data.CommandType.StoredProcedure);
+                    }
+                }
+            }
+            return numberOfAffectedRows;
         }
 
         public int UpdateOneRecord(T record, Guid recordID)

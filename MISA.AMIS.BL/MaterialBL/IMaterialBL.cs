@@ -22,5 +22,14 @@ namespace MISA.AMIS.BL.MaterialBL
         /// + Tổng số nguyên vật liệu thỏa mãn điều kiện</returns>
         /// Created by: VTHYEN (29/09/2022)
         public PagingData<Material> FillterMaterial(MaterialFillter? keyword, int pageSize, int pageNumber);
+
+        /// <summary>
+        /// Lấy mã nhân viên tự động tăng
+        /// </summary>
+        /// <returns>
+        /// Mã nhân viên tự động tăng
+        /// </returns>
+        ///  Created by: VTHYEN (04/10/2022)
+        public string GetNewCode(string MaterialName);
     }
 }

@@ -69,6 +69,29 @@ namespace MISA.CUKCUK.DL.MaterialDL
             }
         }
 
+        public string GetNewCode(string MaterialName)
+        {
+            string newCode = "";
+            string[] str = MaterialName.Split(" ");
+            if (str.Length > 1)
+            {
+                for (int i = 0; i < str.Length; i++)
+                {
+                    newCode += str[i][0];
+                }
+            }
+            else
+            {
+                newCode = str[0].Substring(0, 2);
+            }
+            using (var mySqlConnection = new MySqlConnection(DatabaseContext.ConnectionString))
+            {
+                string storedProcedureName = "Proc_material_GetNewCode";
+                string maxEmployeeCode = mySqlConnection.QueryFirstOrDefault<string>(storedProcedureName, commandType: System.Data.CommandType.StoredProcedure);
+                return newCode.ToUpper() + (maxEmployeeCode.ToString());
+            }
+        }
+
         public override Material GetRecordByID(Guid recordID)
         {
             using (var mySqlConnection = new MySqlConnection(DatabaseContext.ConnectionString))

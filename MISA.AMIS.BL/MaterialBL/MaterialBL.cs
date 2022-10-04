@@ -69,6 +69,11 @@ namespace MISA.AMIS.BL.MaterialBL
                 keyword = setFillterValue(keyword);
             return _materialDL.FillterMaterial(keyword, pageSize, pageNumber);
         }
+
+        public string GetNewCode(string MaterialName)
+        {
+          return _materialDL.GetNewCode(MaterialName);
+        }
         #endregion
     }
 }

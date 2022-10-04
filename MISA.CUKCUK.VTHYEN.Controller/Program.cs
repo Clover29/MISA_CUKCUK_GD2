@@ -3,6 +3,10 @@ using MISA.CUKCUK.DL.BaseDL;
 using MISA.CUKCUK.DL;
 using MISA.AMIS.BL.MaterialBL;
 using MISA.CUKCUK.DL.MaterialDL;
+using MISA.AMIS.BL.StockBL;
+using MISA.CUKCUK.DL.StockDL;
+using MISA.AMIS.BL.UnitBL;
+using MISA.CUKCUK.DL.UnitDL;
 
 var builder = WebApplication.CreateBuilder(args);
 var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
@@ -14,6 +18,11 @@ builder.Services.AddScoped(typeof(IBaseBL<>), typeof(BaseBL<>));
 builder.Services.AddScoped<IMaterialBL, MaterialBL>();
 builder.Services.AddScoped<IMaterialDL, MaterialDL>();
 
+builder.Services.AddScoped<IStockBL, StockBL>();
+builder.Services.AddScoped<IStockDL, StockDL>();
+
+builder.Services.AddScoped<IUnitBL, UnitBL>();
+builder.Services.AddScoped<IUnitDL, UnitDL>();
 DatabaseContext.ConnectionString = builder.Configuration.GetConnectionString("MySqlConnection");
 // Add services to the container.
 

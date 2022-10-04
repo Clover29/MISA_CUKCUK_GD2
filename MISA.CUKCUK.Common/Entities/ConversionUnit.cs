@@ -13,5 +13,24 @@ namespace MISA.CUKCUK.Common.Entities
         public string ConversionUnitName { get; set; }
         public Calculation Calculation { get; set; }
         public double ConversionRate { get; set; }
+        /// <summary>
+        /// Người tạo
+        /// </summary>
+        public string? CreatedBy { get; set; }
+
+        /// <summary>
+        /// Ngày Tạo
+        /// </summary>
+        public DateTime? CreatedDate { get; set; }
+
+        /// <summary>
+        /// Người sửa
+        /// </summary>
+        public string? ModifiedBy { get; set; }
+
+        /// <summary>
+        /// Ngày sửa
+        /// </summary>
+        public DateTime? ModifiedDate { get; set; }
     }
 }
