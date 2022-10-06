@@ -7,17 +7,18 @@
       </button>
     </div>
     <div class="content__table">
+      <LoadingVue v-show="isLoad"/>
       <div class="table__option">
         <div class="label color__black" @click="showForm(true)">
           <i class="fa-solid fa-file-circle-plus icon__add"></i>Thêm
         </div>
-        <div class="label color__black">
+        <div class="label color__black" @click="onDuplicateClick()">
           <i class="fa-regular fa-copy icon__duplicate"></i>Nhân Bản
         </div>
-        <div class="label color__black">
+        <div class="label color__black" @click="onUpdateClick()">
           <i class="fa-solid fa-pen-to-square icon__add"></i>Sửa
         </div>
-        <div class="label color__black">
+        <div class="label color__black" @click="onDeleteClick(true)">
           <i class="fa-solid fa-xmark icon__delete"></i>Xóa
         </div>
         <div class="label color__black">
@@ -30,103 +31,133 @@
             Mã nguyên vật liệu
             <div class="table__text--search">
               <SelectionBox
-              ref="MaterialCode"
-              :isButtonShow="true"
-              :isSelectShow="false"
-              :option_class="'fillter__position'"
-              :option="fillterOption"
-              :optionType="fillterType"
-              :optionID="fillterOption[0].id"
-              @fillter = "getFillterOption('MaterialCode')"
-            />
-              <input v-model="MaterialCode" type="text" class="input__search"/>
+                ref="MaterialCode"
+                :isButtonShow="true"
+                :isSelectShow="false"
+                :option_class="'fillter__position'"
+                :option="fillterOption"
+                :optionType="fillterType"
+                :optionID="fillterOption[0].id"
+                @fillter="getFillterOption('MaterialCode')"
+              />
+              <input
+                v-model="MaterialCode"
+                type="text"
+                class="input__search"
+                @keydown.enter="getFillterOption('MaterialCode')"
+              />
             </div>
           </th>
           <th>
             Tên nguyên vật liệu
             <div class="table__text--search">
               <SelectionBox
-              ref = "MaterialName"
-              :isButtonShow="true"
-              :isSelectShow="false"
-              :option_class="'fillter__position'"
-              :option="fillterOption"
-              :optionType="fillterType"
-              :optionID="fillterOption[0].id"
-              @fillter = "getFillterOption"
-            />
-              <input type="text" class="input__search" v-model="MaterialName"/>
+                ref="MaterialName"
+                :isButtonShow="true"
+                :isSelectShow="false"
+                :option_class="'fillter__position'"
+                :option="fillterOption"
+                :optionType="fillterType"
+                :optionID="fillterOption[0].id"
+                @fillter="getFillterOption('MaterialName')"
+              />
+              <input
+                type="text"
+                class="input__search"
+                v-model="MaterialName"
+                @keydown.enter="getFillterOption('MaterialName')"
+              />
             </div>
           </th>
           <th>
             Tính chất
             <div class="table__text--search">
               <SelectionBox
-              ref = "Feature"
-              :isButtonShow="true"
-              :isSelectShow="false"
-              :option_class="'fillter__position'"
-              :option="fillterOption"
-              :optionType="fillterType"
-              :optionID="fillterOption[0].id"
-              @fillter = "getFillterOption"
-            />
-              <input type="text" class="input__search" v-model="Feature" />
+                ref="Feature"
+                :isButtonShow="true"
+                :isSelectShow="false"
+                :option_class="'fillter__position'"
+                :option="fillterOption"
+                :optionType="fillterType"
+                :optionID="fillterOption[0].id"
+                @fillter="getFillterOption('Feature')"
+              />
+              <input
+                type="text"
+                class="input__search"
+                v-model="Feature"
+                @keydown.enter="getFillterOption('Feature')"
+              />
             </div>
           </th>
           <th>
             ĐVT
             <div class="table__text--search">
               <SelectionBox
-              ref="UnitName"
-              :isButtonShow="true"
-              :isSelectShow="false"
-              :option_class="'fillter__position'"
-              :option="fillterOption"
-              :optionType="fillterType"
-              :optionID="fillterOption[0].id"
-              @fillter = "getFillterOption"
-            />
-              <input type="text" class="input__search" v-model="UnitName" />
+                ref="UnitName"
+                :isButtonShow="true"
+                :isSelectShow="false"
+                :option_class="'fillter__position'"
+                :option="fillterOption"
+                :optionType="fillterType"
+                :optionID="fillterOption[0].id"
+                @fillter="getFillterOption('UnitName')"
+              />
+              <input
+                type="text"
+                class="input__search"
+                v-model="UnitName"
+                @keydown.enter="getFillterOption('UnitName')"
+              />
             </div>
           </th>
           <th>
             Nhóm nguyên vật liệu
             <div class="table__text--search">
               <SelectionBox
-              ref="CategoryName"
-              :isButtonShow="true"
-              :isSelectShow="false"
-              :option_class="'fillter__position'"
-              :option="fillterOption"
-              :optionType="fillterType"
-              :optionID="fillterOption[0].id"
-              @fillter = "getFillterOption"
-            />
-              <input type="text" class="input__search" v-model="CategoryName" />
+                ref="CategoryName"
+                :isButtonShow="true"
+                :isSelectShow="false"
+                :option_class="'fillter__position'"
+                :option="fillterOption"
+                :optionType="fillterType"
+                :optionID="fillterOption[0].id"
+                @fillter="getFillterOption('CategoryName')"
+              />
+              <input
+                type="text"
+                class="input__search"
+                v-model="CategoryName"
+                @keydown.enter="getFillterOption('CategoryName')"
+              />
             </div>
           </th>
           <th>
             Ghi chú
             <div class="table__text--search">
               <SelectionBox
-              ref="Description"
-              :isButtonShow="true"
-              :isSelectShow="false"
-              :option_class="'fillter__position'"
-              :option="fillterOption"
-              :optionType="fillterType"
-              :optionID="fillterOption[0].id"
-              @fillter = "getFillterOption"
-            />
-              <input type="text" class="input__search" v-model="Description" />
+                ref="Description"
+                :isButtonShow="true"
+                :isSelectShow="false"
+                :option_class="'fillter__position'"
+                :option="fillterOption"
+                :optionType="fillterType"
+                :optionID="fillterOption[0].id"
+                @fillter="getFillterOption('Description')"
+              />
+              <input
+                type="text"
+                class="input__search"
+                v-model="Description"
+                @keydown.enter="getFillterOption('Description')"
+              />
             </div>
           </th>
           <th>
             Ngừng theo dõi
             <SelectionBox
-            :isSelectShow="true"
-              :div_class="'table__header--box'"
+              :isSelectShow="true"
+              :div_class="'table__text--search'"
               :input_class="'select__input col_width_100'"
               :option="statusOption"
               :optionType="statusType"
@@ -136,7 +167,13 @@
             />
           </th>
         </tr>
-        <tr v-for="item in materialList" :key="item.materialID">
+        <tr
+          v-for="item in materialList"
+          :key="item.materialID"
+          @click="getMaterialSelected(item)"
+          @dblclick="onUpdateClick()"
+          :class="{ row__selected: MaterialID == item.materialID }"
+        >
           <td>{{ item.materialCode }}</td>
           <td>{{ item.materialName }}</td>
           <td>{{ item.feature }}</td>
@@ -158,9 +195,23 @@
       @LoadData="loadData"
       :totalPage="totalPage"
       :materialFillter="materialFillter"
+      v-model:pageSize = "pageSize"
     />
-    <MaterialForm v-if="isShowForm" :showForm="showForm" />
+    <MaterialForm
+      v-if="isShowForm"
+      :showForm="showForm"
+      @LoadData="loadData"
+      :MaterialID="MaterialID"
+      :ActionType="actionType"
+    />
   </div>
+  <PopUp
+    :message="message"
+    v-if="isShowPopUp"
+    @onYesClick="deleteMaterial"
+    :closePopUp="onDeleteClick"
+    :PopUpType="popUpType"
+  />
 </template>
 <style scoped>
 @import url(container.css);
@@ -172,14 +223,28 @@ import { Resources } from "../../../js/Resources.js";
 import MaterialForm from "../../base/Form/MaterialForm.vue";
 import MaterialPaging from "../../base/Paging/MaterialPaging.vue";
 import SelectionBox from "../../base/SelectionBox/SelectionBox.vue";
+import PopUp from "../../base/PopUp/ThePopUp.vue";
+import LoadingVue from "@/components/base/Loading/LoadData.vue";
 export default {
   name: "TheContainer",
-  components: { MaterialForm, MaterialPaging, SelectionBox },
+  components: { MaterialForm, MaterialPaging, SelectionBox, PopUp, LoadingVue },
   data() {
     return {
+      isLoad:false,
+      pageSize:10,
+      message: "",
+      popUpType: 0,
+      isShowPopUp: false,
       isShowForm: false, //hiển thị form thông tin nguyên liệu,
+      isUpdate: false,
+      MaterialID: "",
       MaterialCode: "",
-        MaterialName: "",
+      MaterialName: "",
+      Feature: "",
+      UnitName: "",
+      CategoryName: "",
+      Description: "",
+      material: {},
       materialFillter: {
         MaterialCode: "",
         MaterialName: "",
@@ -193,19 +258,48 @@ export default {
       totalPageRecord: 0, // tổng số bản ghi được tìm thấy
       totalPage: 0, // tổng số trang
       statusOption: [
-        { id: 1,value: MISAEnum.StatusOption.Using.value, text:MISAEnum.StatusOption.Using.text},
-        { id: 2,value: MISAEnum.StatusOption.NotUsing.value, text:MISAEnum.StatusOption.NotUsing.text},
+        {
+          id: 1,
+          value: MISAEnum.StatusOption.Using.value,
+          text: MISAEnum.StatusOption.Using.text,
+        },
+        {
+          id: 2,
+          value: MISAEnum.StatusOption.NotUsing.value,
+          text: MISAEnum.StatusOption.NotUsing.text,
+        },
       ],
       statusType: MISAEnum.OptionType.Status,
       fillterOption: [
-        { id: 1, value:MISAEnum.FillterOption.Contain.value, text:MISAEnum.FillterOption.Contain.text  },
-        { id: 2, value: MISAEnum.FillterOption.Equal.value, text: MISAEnum.FillterOption.Equal.text },
-        { id: 3, value: MISAEnum.FillterOption.StartWidth.value, text: MISAEnum.FillterOption.StartWidth.text},
-        { id: 4, value:MISAEnum.FillterOption.EndWidth.value, text: MISAEnum.FillterOption.EndWidth.text },
-        { id: 5, value: MISAEnum.FillterOption.NotContain.value, text: MISAEnum.FillterOption.NotContain.text },
+        {
+          id: 1,
+          value: MISAEnum.FillterOption.Contain.value,
+          text: MISAEnum.FillterOption.Contain.text,
+        },
+        {
+          id: 2,
+          value: MISAEnum.FillterOption.Equal.value,
+          text: MISAEnum.FillterOption.Equal.text,
+        },
+        {
+          id: 3,
+          value: MISAEnum.FillterOption.StartWidth.value,
+          text: MISAEnum.FillterOption.StartWidth.text,
+        },
+        {
+          id: 4,
+          value: MISAEnum.FillterOption.EndWidth.value,
+          text: MISAEnum.FillterOption.EndWidth.text,
+        },
+        {
+          id: 5,
+          value: MISAEnum.FillterOption.NotContain.value,
+          text: MISAEnum.FillterOption.NotContain.text,
+        },
       ],
       fillterType: MISAEnum.OptionType.Fillter,
-      fillterText:MISAEnum.FillterOption.Contain.value,
+      fillterText: MISAEnum.FillterOption.Contain.value,
+      actionType: 0,
     };
   },
   methods: {
@@ -216,6 +310,8 @@ export default {
      */
     showForm(isShow) {
       this.isShowForm = isShow;
+      this.MaterialID = "";
+      this.actionType = MISAEnum.ActionType.Insert;
     },
     /**
      *Hàm load danh sách nguyên vật liệu
@@ -223,22 +319,22 @@ export default {
      * CreatedDate:03/10/2022
      */
     loadData(pageSize, pageNumber, materialFillter) {
+      this.isLoad = true;
       axios
         .get(
           Resources.DOMAIN +
             Resources.API_VER +
             Resources.MATERIAL_PATH +
-            `/Fillter?MaterialCode=${materialFillter.MaterialCode}&MaterialName=${materialFillter.MaterialName}&
-            Feature=${materialFillter.Feature}&UnitName=${materialFillter.UnitName}&CategoryName=${materialFillter.CategoryName}&
-            Description=${materialFillter.Description}&Status=${materialFillter.Status}&pageSize=${pageSize}&pageNumber=${pageNumber}`
+            `/Fillter?MaterialCode=${materialFillter.MaterialCode}&MaterialName=${materialFillter.MaterialName}&Feature=${materialFillter.Feature}&UnitName=${materialFillter.UnitName}&CategoryName=${materialFillter.CategoryName}&Description=${materialFillter.Description}&Status=${materialFillter.Status}&pageSize=${pageSize}&pageNumber=${pageNumber}`
         )
         .then((response) => {
           if (response) {
             this.materialList = response.data.data;
+            this.MaterialID  = response.data.data.materialID;
             this.totalPage = response.data.totalPage;
             this.totalPageRecord = response.data.totalRecord;
             this.currentPage = response.data.currentPage;
-            // this.loading = false;
+             this.isLoad = false;
             // this.setPagingValue();
             // this.isData = response.data.data.length > 0 ? true : false;
             // this.showPaging = response.data.data.length > 0 ? true : false;
@@ -255,19 +351,60 @@ export default {
           // });
         });
     },
-    setStatus(data){
+    setStatus(data) {
       this.materialFillter.Status = data;
-      this.loadData(10,1,this.materialFillter);
+      this.loadData(10, 1, this.materialFillter);
     },
-    getFillterOption(value){
-      if(this.$refs[value].fillterText != "+"){
-         this.materialFillter[value] = this.$refs[value].fillterText + this[value];
+    getFillterOption(value) {
+      if (this.$refs[value].fillterText != "+") {
+        this.materialFillter[value] =
+          this.$refs[value].fillterText + this[value];
+      } else {
+        this.materialFillter[value] = "%2B" + this[value];
       }
-    else{
-      this.materialFillter[value] = "%2B" + this[value];
-    }
-     this.loadData(10,1,this.materialFillter);
-    }
+      this.loadData(this.pageSize, 1, this.materialFillter);
+    },
+    getMaterialSelected(material) {
+      this.MaterialID = material.materialID;
+      this.material = material;
+    },
+    onUpdateClick() {
+      if (this.MaterialID) {
+        this.isShowForm = true;
+        this.actionType = MISAEnum.ActionType.Update;
+      }
+    },
+    onDuplicateClick() {
+      if (this.MaterialID) {
+        this.isShowForm = true;
+        this.actionType = MISAEnum.ActionType.Duplicate;
+      }
+    },
+    deleteMaterial() {
+      axios
+        .delete(
+          Resources.DOMAIN +
+            Resources.API_VER +
+            Resources.MATERIAL_PATH +
+            `/${this.MaterialID}`
+        )
+        .then((response) => {
+          if (response.data == this.MaterialID) {
+            this.loadData(this.pageSize, 1, this.materialFillter);
+          }
+        })
+        .catch((error) => {
+          console.log(error.response);
+        });
+    },
+    onDeleteClick(isShow) {
+      this.message = [];
+      this.isShowPopUp = isShow;
+      this.message.push({
+        msg: `Bạn có chắc muốn xóa Nguyên vật liệu << ${this.material.materialCode} - ${this.material.materialName}>> không?`,
+      });
+      this.popUpType = MISAEnum.PopUpType.Alert;
+    },
   },
   created() {
     this.loadData(10, 1, this.materialFillter);

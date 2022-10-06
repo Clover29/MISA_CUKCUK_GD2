@@ -2,6 +2,7 @@
 @import url(./base/title.css);
 @import url(./base/button.css);
 @import url(./base/table.css);
+@import url(./base/option.css);
 *{
     text-decoration: none;
     margin: 0;
@@ -10,7 +11,7 @@
     font-size: 13px;
     box-sizing: border-box;
     color: #000;
-    height: 100%;
+    /* height: 100%; */
     outline: none;
 }
 body {
@@ -27,12 +28,19 @@ body {
     display: flex;
 }
 .col__width_34{
-    width: 34%;
+    width: 32%;
     margin-right: 8px;
+    height: 30px;
 }
 .col_width_70{
     width: 70%;
 }
 .col_width_100{
     width: 100%;
+}
+.col_height_30{
+    height: 30px;
+}
+.border-red {
+    border: 1px solid #f00!important;
 }

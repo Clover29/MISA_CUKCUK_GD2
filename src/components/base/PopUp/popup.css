@@ -1,0 +1,15 @@
+.popup__footer{
+    display: flex;
+    margin-top: 24px;
+    float: right;
+}
+.pop-up__message {
+    overflow: auto;
+    max-height: 400px;
+    display: flex;
+    flex-direction: column;
+  }
+  .pop-up__text {
+    padding-left: 16px;
+    padding-top: 12px;
+  }

@@ -1,4 +1,5 @@
 .content__table{
+    position: relative;
 height: 84%;
 overflow: auto;
 }
@@ -14,6 +15,7 @@ overflow: auto;
     left: 0;
 }
 .table__data{
+    position: relative;
     height: fit-content;
     border-collapse: collapse;
     width: 100%;
@@ -53,4 +55,11 @@ overflow: auto;
 }
 .checkbox__col{
     text-align: center;
+}
+.row__input{
+    border: none;
+    text-align: right;
+}
+.row__selected{
+    background-color:#D7e9f4 ;
 }

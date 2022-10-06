@@ -1,0 +1,25 @@
+.combobox__option--row {
+    padding: 5px 10px;
+    cursor: pointer;
+    text-align: left;
+    height: fit-content;
+}
+.combobox__option--row:hover{
+    color: #0072BC;
+    background-color: #ebedf0;
+}
+.combobox__highlight{
+    color: #fff;
+    background-color: #0072BC;
+}
+.combobox__option {
+    position: absolute;
+    top: 31px;
+    left: 0;
+    width: 100%;
+    background: #fff;
+    padding: 2px 1px;
+    border-radius: 2px;
+    border: 1px solid #babec5;
+    height: fit-content;
+}

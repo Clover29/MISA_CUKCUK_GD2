@@ -1,8 +1,14 @@
 <template>
   <div class="paging">
     <div class="paging__left">
-      <i class="fa-solid fa-angles-left paging__text"></i>
-      <i class="fa-solid fa-chevron-left paging__text"></i>
+      <i
+        class="fa-solid fa-angles-left paging__text"
+        @click="pageNumber = 1"
+      ></i>
+      <i
+        class="fa-solid fa-chevron-left paging__text"
+        @click="pageNumber--"
+      ></i>
       <div class="paging__text icon__line">|</div>
       Trang
       <input
@@ -15,14 +21,20 @@
       trên
       {{ totalPage }}
       <div class="paging__text icon__line" style="margin-left: 8px">|</div>
-      <i class="fa-solid fa-chevron-right paging__text"></i>
-      <i class="fa-solid fa-angles-right paging__text"></i>
+      <i
+        class="fa-solid fa-chevron-right paging__text"
+        @click="pageNumber++"
+      ></i>
+      <i
+        class="fa-solid fa-angles-right paging__text"
+        @click="pageNumber = totalPage"
+      ></i>
       <div class="paging__text icon__line">|</div>
       <i class="fa-solid fa-rotate-right paging__text"></i>
       <div class="paging__text icon__line">|</div>
       <SelectionBox
         :isSelectShow="true"
-        :value="'10'"
+        :value="pageSize"
         :input_class="'paging_number'"
         :icon_class="'dropdown_page_position'"
         :option_class="'paging__position'"
@@ -46,25 +58,34 @@ import SelectionBox from "../SelectionBox/SelectionBox.vue";
 export default {
   name: "MaterialPaging",
   components: { SelectionBox },
-  emits:['LoadData'],
-  props: ["totalRecord", "totalPage", "materialFillter"],
+  emits: ["LoadData"],
+  props: ["totalRecord", "totalPage", "materialFillter","pageSize"],
   data() {
     return {
       option: [
-        { id: 1, value: 10, text:10 },
-        { id: 2, value: 25, text:25 },
-        { id: 3, value: 50, text:50 },
-        { id: 4, value: 100, text:100 },
+        { id: 1, value: 10, text: 10 },
+        { id: 2, value: 25, text: 25 },
+        { id: 3, value: 50, text: 50 },
+        { id: 4, value: 100, text: 100 },
       ],
       type: MISAEnum.OptionType.Paging,
-      pageSize: 10,
       pageNumber: 1,
       debounce: 0,
     };
   },
+  watch: {
+    pageNumber: function () {
+      this.$emit(
+        "LoadData",
+        this.pageSize,
+        this.pageNumber,
+        this.materialFillter
+      );
+    },
+  },
   methods: {
     getPageSize(pageSize) {
-      this.pageSize = pageSize;
+      this.$emit("update:pageSize",pageSize);
       this.$emit("LoadData", pageSize, this.pageNumber, this.materialFillter);
     },
     loadData() {

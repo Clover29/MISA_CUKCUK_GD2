@@ -1,0 +1,24 @@
+.autocomplte{
+    position: relative;
+    display: flex;
+    height: 30px;
+}
+.position__plus{
+    position: absolute;
+    right: 0px;
+    top: 7px
+}
+.position__dropdown--21{
+    right: 21px!important;
+}
+.position__dropdown--72{
+    right: 72px!important;
+}
+.position__plus--50{
+    right: 50px;
+}
+.unit_position{
+    height: 100px!important;
+    overflow: auto;
+    z-index: 1;
+}

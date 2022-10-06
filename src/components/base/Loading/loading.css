@@ -1,0 +1,47 @@
+.loading__container {
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(204, 204, 204, 0.703);
+    z-index: 5;
+}
+.loading__text{
+    color: #fff;
+}
+.icon__loading{
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    border: 4px solid;
+    border-top-color: #0072BC;
+    border-left-color: #0072BC;
+    border-right-color: #fff;
+    border-bottom-color: #fff;
+    animation: spin 1s linear infinite;
+}
+/* Safari */
+@-webkit-keyframes spin {
+    0% {
+        -webkit-transform: rotate(0deg);
+    }
+
+    100% {
+        -webkit-transform: rotate(360deg);
+    }
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}
