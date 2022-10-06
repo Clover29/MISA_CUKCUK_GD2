@@ -180,10 +180,6 @@ export default {
       isShowForm: false, //hiển thị form thông tin nguyên liệu,
       MaterialCode: "",
         MaterialName: "",
-        Feature: "",
-        UnitName: "",
-        CategoryName: "",
-        Description: "",
       materialFillter: {
         MaterialCode: "",
         MaterialName: "",
