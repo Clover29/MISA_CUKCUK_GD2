@@ -15,6 +15,10 @@ export const MISAEnum = {
         Error: 2,
         Alert:3
     },
+    AddingType:{
+        Unit: 1,
+        Stock:2
+    },
    StatusOption:{
     Using: {text: "Không", value: 1},
     NotUsing: {text:"Có",value: 2}

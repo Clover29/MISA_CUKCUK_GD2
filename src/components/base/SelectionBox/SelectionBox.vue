@@ -52,15 +52,24 @@ export default {
     return {
       isShow: this.isDropDownShow, // ẩn hiện option của selectbox
       optionId: this.optionID, //id của option
-      optionValue: this.value,
-      fillterText: MISAEnum.FillterOption.Contain.value,
+      optionValue: this.value,//giá trị khi đc chọn
+      fillterText: MISAEnum.FillterOption.Contain.value, // loại fillter muốn thực hiện
     };
   },
   methods: {
+     /**
+     *Hàm ẩn hiện dropdown
+     * AUTHOR: YENVTH
+     * CreatedDate:03/10/2022
+     */
     showDropDown() {
       this.isShow = !this.isShow;
     },
-
+ /**
+     *Hàm gán dữ liệu khi chọn option
+     * AUTHOR: YENVTH
+     * CreatedDate:03/10/2022
+     */
     onClickOption(data) {
       try {
         this.optionId = data.id;

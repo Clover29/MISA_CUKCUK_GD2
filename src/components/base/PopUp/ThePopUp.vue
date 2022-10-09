@@ -51,19 +51,34 @@ export default {
   props:["message", "PopUpType","closePopUp"],
   data(){
     return{
-      confirm: MISAEnum.PopUpType.Confirm,
-      error: MISAEnum.PopUpType.Error,
-      alert: MISAEnum.PopUpType.Alert
+      confirm: MISAEnum.PopUpType.Confirm, // pop up confirm
+      error: MISAEnum.PopUpType.Error, // pop up báo lỗi
+      alert: MISAEnum.PopUpType.Alert // pop up cảnh báo
     }
   },
   methods:{
+     /**
+     *Hàm đóng popup
+     * AUTHOR: YENVTH
+     * CreatedDate:03/10/2022
+     */
     btnCloseOnClick(){
       this.closePopUp(false);
     },
+     /**
+     *Hàm bắt sự kiện khi click button "Yes"
+     * AUTHOR: YENVTH
+     * CreatedDate:03/10/2022
+     */
     onBtnYesClick(){
       this.closePopUp(false);
      this.$emit("onYesClick");
     },
+     /**
+     *Hàm bắt sự kiện khi click  "No"
+     * AUTHOR: YENVTH
+     * CreatedDate:03/10/2022
+     */
     onBtnNoClick(){
       this.closePopUp(false);
       this.$emit("onNoClick");

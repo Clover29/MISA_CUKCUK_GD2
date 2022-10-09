@@ -42,6 +42,7 @@
                 :UnitList="unitList"
                 v-model:ID="material.unitID"
                 v-model:Name="material.unitName"
+                @addValue="addValue(true)"
               />
             </div>
             <div class="row">
@@ -85,6 +86,7 @@
                 :StockList="stockList"
                 v-model:ID="material.stockID"
                 v-model:Name="material.stockName"
+                @addValue="addValue(false)"
               />
             </div>
             <div class="row">
@@ -111,7 +113,7 @@
         </div>
         <div class="body__table">
           <table class="table__data">
-            <tr>
+            <tr class="table__header">
               <th>STT</th>
               <th>Đơn vị chuyển đổi</th>
               <th>Tỷ lệ chuyển đổi</th>
@@ -130,6 +132,7 @@
                   :UnitList="unitList"
                   v-model:ID="item.conversionUnitID"
                   v-model:Name="item.conversionUnitName"
+                  @addValue="addValue(true)"
                 />
               </td>
               <td class="col-3">
@@ -232,6 +235,15 @@
     :PopUpType="popUpType"
     :closePopUp="showPopUp"
   />
+  <AddValue
+    :title="title"
+    :label="label"
+    :type="addingType"
+    v-if="isShowAdding"
+    v-model:isShow="isShowAdding"
+    @loadUnit="getAllUnit"
+    @loadStock="getAllStock"
+  />
 </template>
 <style scoped>
 @import url(dialog.css);
@@ -244,22 +256,28 @@ import ComboboxVue from "../Combobox/ComboBoxVue.vue";
 import { MISAEnum } from "@/js/Enum.js";
 import ThePopUp from "../PopUp/ThePopUp.vue";
 import LoadData from "../Loading/LoadData.vue";
+import AddValue from "./AddValue.vue";
 
 export default {
   name: "MaterialForm",
-  components: { SelectionBox, ComboboxVue, ThePopUp, LoadData },
+  components: { SelectionBox, ComboboxVue, ThePopUp, LoadData, AddValue },
+  emits:['LoadData'],
   props: ["showForm", "MaterialID", "ActionType"],
   data() {
     return {
-      isLoad: false,
-      popUpType: 0,
-      isShowPopUp: false,
+      isShowAdding: false, // hiển thị form thêm mới
+      addingType: MISAEnum.AddingType.Unit,// xác định form thêm mới cho đơn vị hay kho
+      title: Resources.UNIT_TITLE, // tittle cho form thêm mới
+      label: Resources.UNIT_LABEL, // nhãn cho form thêm mới
+      isLoad: false, // ẩn hiện component loading
+      popUpType: 0, // kiểu thông báo hiện lên
+      isShowPopUp: false, // ẩn hiển pop up
       message: [
         {
           msg: "",
           tittle: "",
         },
-      ],
+      ], // nội dung pop up thông báo
       unitList: [], // danh sách đơn vị
       stockList: [], //danh sách kho ngầm định
       expiry: [
@@ -267,14 +285,14 @@ export default {
         { id: 2, value: "Tuần", text: "Tuần" },
         { id: 3, value: "Tháng", text: "Tháng" },
         { id: 4, value: "Năm", text: "Năm" },
-      ],
-      expiryDate: 0,
-      expiryTime: "Ngày",
+      ], // list hạn sử dụng
+      expiryDate: 0, // số thời gian của hạn sử dụng
+      expiryTime: "Ngày", //"giá trị hạn sử dụng"
       calculation: [
         { id: 1, value: "*", text: "* - Nhân" },
         { id: 2, value: "/", text: "/ - Chia" },
-      ],
-      rateType: MISAEnum.OptionType.Calculation,
+      ], // list phép tính cần thực hiện
+      rateType: MISAEnum.OptionType.Calculation, // loại phép tính
       material: {
         materialCode: "",
         materialName: "",
@@ -291,7 +309,7 @@ export default {
         modifiedBy: "admin",
         modifiedDate: new Date(),
         conversionUnits: [],
-      },
+      },//thông tin nguyên vật liệu
       materialFillter: {
         MaterialCode: "",
         MaterialName: "",
@@ -303,7 +321,32 @@ export default {
       }, //danh sách các thuộc tính lọc nguyên vật liệu
     };
   },
+  watch:{
+   material:{
+    handler(newVal){
+      var item = newVal.conversionUnits;
+      if(item.length >0){
+        for (let index = 0; index < item.length; index++) {
+         if(item[index].conversionUnitID != 0 &&item[index].conversionUnitID == newVal.unitID){
+            this.isShowPopUp = true;
+            this.popUpType = MISAEnum.PopUpType.Error;
+            this.message = [];
+            this.message.push({
+              msg:"Đơn vị chuyển đổi không được trùng với đơn vị chính!",
+            });
+          }
+        }
+      }
+    },
+    deep:true,
+   }
+  },
   methods: {
+      /**
+     *Hàm hiển thị pop up
+     * AUTHOR: YENVTH
+     * CreatedDate:28/09/2022
+     */
     showPopUp(isShow) {
       this.message = [];
       this.isShowPopUp = isShow;
@@ -311,6 +354,19 @@ export default {
         msg: Resources.CLOSE_CONFIRM,
       });
       this.popUpType = MISAEnum.PopUpType.Confirm;
+    },
+      /**
+     *Hàm hiển thị form thêm mới
+     * AUTHOR: YENVTH
+     * CreatedDate:28/09/2022
+     */
+    addValue(isUnit) {
+      this.isShowAdding = true;
+      this.title = isUnit ? Resources.UNIT_TITLE : Resources.STOCK_TITLE;
+      this.addingType = isUnit
+        ? MISAEnum.AddingType.Unit
+        : MISAEnum.AddingType.Stock;
+      this.label = isUnit ? Resources.UNIT_LABEL : Resources.STOCK_LABEL;
     },
     /**
      *Hàm đóng form
@@ -320,6 +376,11 @@ export default {
     btnCloseOnClick() {
       this.showForm(false);
     },
+      /**
+     *Hàm lấy ra giá trị hạn sử dụng
+     * AUTHOR: YENVTH
+     * CreatedDate:28/09/2022
+     */
     getExpiryDate(value) {
       var now = new Date().getTime();
       switch (this.expiryTime) {
@@ -347,6 +408,11 @@ export default {
           break;
       }
     },
+      /**
+     *Hàm format hạn sử dụng thành date time
+     * AUTHOR: YENVTH
+     * CreatedDate:28/09/2022
+     */
     formatDate() {
       this.material.expiryDate = new Date();
       switch (this.expiryTime) {
@@ -405,6 +471,31 @@ export default {
      * CreatedDate:28/09/2022
      */
     btnDeleteRowOnClick() {
+      if (
+        this.material.conversionUnits[this.material.conversionUnits.length - 1]
+          .conversionUnitID != 0
+      ) {
+        this.isLoad = true;
+        axios
+          .delete(
+            Resources.DOMAIN +
+              Resources.API_VER +
+              Resources.CONVERSION_UNIT_PATH +
+              `/${this.MaterialID}&${
+                this.material.conversionUnits[
+                  this.material.conversionUnits.length - 1
+                ].conversionUnitID
+              }`
+          )
+          .then((response) => {
+            if (response.data) {
+              this.isLoad = false;
+            }
+          })
+          .catch((error) => {
+            console.log(error.response);
+          });
+      }
       this.material.conversionUnits.pop();
     },
     /**
@@ -509,7 +600,13 @@ export default {
           // });
         });
     },
+      /**
+     *Hàm lấy thông tin nguyên vật liệu theo id
+     * AUTHOR: YENVTH
+     * CreatedDate:28/09/2022
+     */
     getMaterialById() {
+      this.isLoad = true;
       axios
         .get(
           Resources.DOMAIN +
@@ -519,6 +616,7 @@ export default {
         )
         .then((response) => {
           if (response) {
+            this.isLoad = false;
             this.material = response.data;
             this.getExpiryDate(response.data.expiryDate);
           }
@@ -527,6 +625,11 @@ export default {
           console.log(error.response);
         });
     },
+      /**
+     *Hàm reset lại nguyên vật liệu
+     * AUTHOR: YENVTH
+     * CreatedDate:28/09/2022
+     */
     resetMaterial() {
       this.material = {
         materialCode: "",
@@ -547,6 +650,11 @@ export default {
       };
       this.expiryDate = 0;
     },
+      /**
+     *Hàm validate dữ liệu
+     * AUTHOR: YENVTH
+     * CreatedDate:28/09/2022
+     */
     validate() {
       this.message = [];
       if (this.material.materialName == "") {
@@ -568,6 +676,11 @@ export default {
         });
       }
     },
+      /**
+     *Hàm thực hiện function tương ứng khi click button cất hoặc cất và thêm
+     * AUTHOR: YENVTH
+     * CreatedDate:28/09/2022
+     */
     saveOnClick(isContinue) {
       this.validate();
       if (this.message.length > 0) {
@@ -581,6 +694,11 @@ export default {
         }
       }
     },
+      /**
+     *Hàm Thêm nguyên vật liệu
+     * AUTHOR: YENVTH
+     * CreatedDate:28/09/2022
+     */
     insertMaterial(isContinue) {
       this.isLoad = true;
       axios
@@ -602,8 +720,22 @@ export default {
         })
         .catch((error) => {
           console.log(error);
+          if (error.response.data == 1062) {
+            this.isLoad = false;
+            this.isShowPopUp = true;
+            this.popUpType = MISAEnum.PopUpType.Error;
+            this.message = [];
+            this.message.push({
+              msg: ` Mã nhân viên << ${this.material.materialCode} >> đã tồn tại trong hệ thống!`,
+            });
+          }
         });
     },
+      /**
+     *Hàm sửa nguyên vật liệu
+     * AUTHOR: YENVTH
+     * CreatedDate:28/09/2022
+     */
     updateMaterial(isContinue) {
       this.isLoad = true;
       axios
@@ -628,6 +760,15 @@ export default {
         })
         .catch((error) => {
           console.log(error);
+          if (error.response.data == 1062) {
+            this.isLoad = false;
+            this.isShowPopUp = true;
+            this.popUpType = MISAEnum.PopUpType.Error;
+            this.message = [];
+            this.message.push({
+              msg: ` Mã nhân viên << ${this.material.materialCode} >> đã tồn tại trong hệ thống!`,
+            });
+          }
         });
     },
   },

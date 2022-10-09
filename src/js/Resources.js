@@ -4,6 +4,7 @@ export const Resources = {
     MATERIAL_PATH: "Materials",
     UNIT_PATH:"Units",
    STOCK_PATH: "Stocks",
+   CONVERSION_UNIT_PATH:"ConversionUnits",
    MATERIALE_CODE_ERROR:"Mã không được để trống!",
    MATERIAL_NAME_ERROR:"Tên không được để trống!",
     UNIT_ERROR:"Đơn vị Không được để trống!",
@@ -15,5 +16,9 @@ export const Resources = {
     DELETE_SUCCESS:"Xóa nhân viên thành công.",
     DELETE_CONFIRM:"Bạn có thực sự muốn xóa những nhân viên đã chọn không?",
     DELETE_MULTIPLE_CONFRIM:"Bạn có thực sự muốn xóa những nhân viên đã chọn không?",
-    CLOSE_CONFIRM:"Dữ liệu đã bị thay đổi. Bạn có muốn cất không?"
+    CLOSE_CONFIRM:"Dữ liệu đã bị thay đổi. Bạn có muốn cất không?",
+    UNIT_TITLE:"Thêm đơn vị",
+    STOCK_TITLE:"Thêm Kho",
+    UNIT_LABEL: "Đơn vị",
+    STOCK_LABEL: "Mã Kho"
 };

@@ -230,21 +230,21 @@ export default {
   components: { MaterialForm, MaterialPaging, SelectionBox, PopUp, LoadingVue },
   data() {
     return {
-      isLoad:false,
-      pageSize:10,
-      message: "",
-      popUpType: 0,
-      isShowPopUp: false,
+      isLoad:false, // ẩn hiện loading
+      pageSize:10, // số bản ghi hiển thị trong 1 trang
+      message: "", // thông tin của pop up
+      popUpType: 0, // loại pop up được hiển thị
+      isShowPopUp: false, // ẩn hiện pop up
       isShowForm: false, //hiển thị form thông tin nguyên liệu,
-      isUpdate: false,
-      MaterialID: "",
-      MaterialCode: "",
-      MaterialName: "",
-      Feature: "",
-      UnitName: "",
-      CategoryName: "",
-      Description: "",
-      material: {},
+      isUpdate: false, // check trạng thái khi nào update
+      MaterialID: "", //id nguyên vật liệu
+      MaterialCode: "", // mã nguyên vật liệu
+      MaterialName: "", // tên nguyên vật liệu
+      Feature: "", // tính chất
+      UnitName: "", // tên đơn vị
+      CategoryName: "", // tên nhóm nguyên vật liệu
+      Description: "", // mô tả
+      material: {}, // nguyên vật liệu
       materialFillter: {
         MaterialCode: "",
         MaterialName: "",
@@ -268,8 +268,8 @@ export default {
           value: MISAEnum.StatusOption.NotUsing.value,
           text: MISAEnum.StatusOption.NotUsing.text,
         },
-      ],
-      statusType: MISAEnum.OptionType.Status,
+      ], // list trạng thái
+      statusType: MISAEnum.OptionType.Status, //loại trạng thái
       fillterOption: [
         {
           id: 1,
@@ -296,10 +296,10 @@ export default {
           value: MISAEnum.FillterOption.NotContain.value,
           text: MISAEnum.FillterOption.NotContain.text,
         },
-      ],
-      fillterType: MISAEnum.OptionType.Fillter,
-      fillterText: MISAEnum.FillterOption.Contain.value,
-      actionType: 0,
+      ],// lựa chọn lọc 
+      fillterType: MISAEnum.OptionType.Fillter, //loại lọc muốn thực hiện
+      fillterText: MISAEnum.FillterOption.Contain.value, //text muốn search
+      actionType: 0, // loại chức năng muôn thực hiện
     };
   },
   methods: {
@@ -330,7 +330,8 @@ export default {
         .then((response) => {
           if (response) {
             this.materialList = response.data.data;
-            this.MaterialID  = response.data.data.materialID;
+            this.MaterialID  = response.data.data[0].materialID;
+            this.material = response.data.data[0];
             this.totalPage = response.data.totalPage;
             this.totalPageRecord = response.data.totalRecord;
             this.currentPage = response.data.currentPage;
@@ -351,10 +352,20 @@ export default {
           // });
         });
     },
+     /**
+     *Hàm set trạng thái
+     * AUTHOR: YENVTH
+     * CreatedDate:03/10/2022
+     */
     setStatus(data) {
       this.materialFillter.Status = data;
       this.loadData(10, 1, this.materialFillter);
     },
+     /**
+     *Hàm lấy ra lựa chọn lọc
+     * AUTHOR: YENVTH
+     * CreatedDate:03/10/2022
+     */
     getFillterOption(value) {
       if (this.$refs[value].fillterText != "+") {
         this.materialFillter[value] =
@@ -364,22 +375,42 @@ export default {
       }
       this.loadData(this.pageSize, 1, this.materialFillter);
     },
+     /**
+     *Hàm lấy thông tin nguyên vật liệu khi click
+     * AUTHOR: YENVTH
+     * CreatedDate:03/10/2022
+     */
     getMaterialSelected(material) {
       this.MaterialID = material.materialID;
       this.material = material;
     },
+     /**
+     *Hàm mở form khi click button sửa
+     * AUTHOR: YENVTH
+     * CreatedDate:03/10/2022
+     */
     onUpdateClick() {
       if (this.MaterialID) {
         this.isShowForm = true;
         this.actionType = MISAEnum.ActionType.Update;
       }
     },
+ /**
+     *Hàm thực hiện chức năng nhân bản
+     * AUTHOR: YENVTH
+     * CreatedDate:03/10/2022
+     */
     onDuplicateClick() {
       if (this.MaterialID) {
         this.isShowForm = true;
         this.actionType = MISAEnum.ActionType.Duplicate;
       }
     },
+     /**
+     *Hàm xóa nguyên vật liệu
+     * AUTHOR: YENVTH
+     * CreatedDate:03/10/2022
+     */
     deleteMaterial() {
       axios
         .delete(
@@ -397,6 +428,11 @@ export default {
           console.log(error.response);
         });
     },
+     /**
+     *Hàm mở form confirm trước khi xóa
+     * AUTHOR: YENVTH
+     * CreatedDate:03/10/2022
+     */
     onDeleteClick(isShow) {
       this.message = [];
       this.isShowPopUp = isShow;

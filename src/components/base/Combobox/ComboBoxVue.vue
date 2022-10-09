@@ -5,8 +5,10 @@
       :class="text_class"
       type="text"
       ref="input"
-      :value="Name"
+      v-model = "value"
+      @input="onEditName"
       @blur="validate"
+      @keydown="keyMonitor($event)"
     />
     <div
       class="icon icon-16 icon__dropdown"
@@ -16,10 +18,11 @@
     <i
       class="fa-solid fa-plus icon__add position__plus"
       :class="plus__icon"
+      @click="btnAddOnClick"
     ></i>
-    <div class="combobox__option unit_position" :class="width" v-show="isShow">
+    <div class="combobox__option unit_position" ref="scrollContainer" :class="width" v-show="isShow">
       <div
-        v-for="item in optionData"
+        v-for="item in filteredOptions"
         :key="item.Id"
         class="combobox__option--row"
         :class="{ combobox__highlight: ID == item.Id }"
@@ -50,14 +53,48 @@ export default {
   data() {
     return {
       isShow: false, // hiển thị option
+      isDropdownClick:false, // check button dropdown có đc click hay k
+      index:0, // chỉ số của item được lựa chọn
+      value:this.Name, // giá trị của input
     }
   },
   watch:{
-    Name:function(){
+     /**
+     *set giá trị của value tương ứng với prop Name
+     * AUTHOR: YENVTH
+     * CreatedDate:03/10/2022
+     */
+    Name:function(value){
+      this.value = value;
+    },
+     /**
+     *validate khi value thay đổi
+     * AUTHOR: YENVTH
+     * CreatedDate:03/10/2022
+     */
+    value:function(){
       this.validate();
-    }
+    },
+     /**
+     *update prop Name và id khi index thay đổi
+     * AUTHOR: YENVTH
+     * CreatedDate:03/10/2022
+     */
+    index() {
+      try {
+        this.$emit('update:Name',this.$refs.input.value); 
+        this.$emit('update:ID',this.filteredOptions[this.index].Id);
+      } catch (error) {
+        console.log(error);
+      }
+    },
   },
   computed: {
+     /**
+     *set giá trị của optionData tương ứng với loại form cần thực hiện
+     * AUTHOR: YENVTH
+     * CreatedDate:03/10/2022
+     */
     optionData() {
       var optionData = [];
       if (this.UnitList) {
@@ -78,17 +115,67 @@ export default {
       }
       return optionData;
     },
+     /**
+     *hàm thực hiện chức năng autocomplte
+     * AUTHOR: YENVTH
+     * CreatedDate:03/10/2022
+     */
+    filteredOptions() {
+      if (!this.ID || this.isDropdownClick
+      ) {
+        return this.optionData;
+      } else {
+        const filtered = [];
+        const regOption = new RegExp(this.value, "ig");
+        for (const option of this.optionData) {
+          if (option.Name.match(regOption)) {
+            filtered.push(option);
+          }
+        }
+        return filtered;
+      }
+    },
   },
   methods: {
+     /**
+     *Hàm ẩn hiện option khi click button dropdown
+     * AUTHOR: YENVTH
+     * CreatedDate:03/10/2022
+     */
     showDropDown() {
       this.isShow = !this.isShow;
     },
+     /**
+     *Hàm set giá trị khi click vào item tương ứng
+     * AUTHOR: YENVTH
+     * CreatedDate:03/10/2022
+     */
     onClickOption(value) { 
+      this.isDropdownClick = true;
       this.$emit('update:Name',value.Name );
       this.$emit('update:ID',value.Id );
       this.$emit('updateDescription'); 
+      this.value = value.Name;
       this.isShow = false;
     },
+     /**
+     *hiện option khi edit input
+     * AUTHOR: YENVTH
+     * CreatedDate:03/10/2022
+     */
+    onEditName() {
+      try {
+        this.isShow = true;
+        this.isDropdownClick = false;
+      } catch (error) {
+        console.log(error);
+      }
+    },
+     /**
+     *validate đơn vị
+     * AUTHOR: YENVTH
+     * CreatedDate:03/10/2022
+     */
     validate(){
       if(!this.text_class){
         if(this.$refs.input &&!this.Name){
@@ -97,7 +184,65 @@ export default {
           this.$refs.input.classList.remove('border-red');
         }
       }
-    }
+    },
+     /**
+     *mở form add khi click vào button cộng
+     * AUTHOR: YENVTH
+     * CreatedDate:03/10/2022
+     */
+    btnAddOnClick(){
+      this.$emit('addValue');
+    },
+     /**
+     * set vị trí của thanh cuộn khi kéo lên hoặc kéo xuống
+     * AUTHOR: YENVTH
+     * CreatedDate: 08/08/2022
+     */
+     setScroll() {
+      try {
+        if (this.$refs.scrollContainer) {
+          this.$refs.scrollContainer.scrollTop = 26 * this.index;
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    },
+     /**
+     *set index tương ứng với các phím tương ứng
+     * AUTHOR: YENVTH
+     * CreatedDate:03/10/2022
+     */
+    keyMonitor(event) {
+      try {
+        if (this.filteredOptions) {
+          switch (event.key) {
+            case "Enter":
+              this.onClickOption(this.filteredOptions[this.index]);
+              break;
+            case "ArrowDown":
+              this.isShow = true;
+              this.index =
+                this.index >= this.filteredOptions.length - 1
+                  ? 0
+                  : this.index + 1;
+              this.setScroll();
+              break;
+            case "ArrowUp":
+              this.isShow = true;
+              this.index =
+                this.index <= 0
+                  ? this.filteredOptions.length - 1
+                  : this.index - 1;
+              this.setScroll();
+              break;
+          }
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    },
+    
   },
+  
 };
 </script>

@@ -6,7 +6,8 @@
 .position__plus{
     position: absolute;
     right: 0px;
-    top: 7px
+    top: 7px;
+    cursor: pointer;
 }
 .position__dropdown--21{
     right: 21px!important;
