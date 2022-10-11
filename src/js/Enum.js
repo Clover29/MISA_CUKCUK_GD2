@@ -19,6 +19,27 @@ export const MISAEnum = {
         Unit: 1,
         Stock:2
     },
+    Status:{
+        Success: 1,
+        Error: 2
+       },
+    KeyBoard:{
+        Enter:"Enter",
+        ArrowDown:"ArrowDown",
+        ArrowUp:"ArrowUp"
+    },   
+    Date:{
+        Day:"Ngày",
+        Week:"Tuần",
+        Month:"Tháng",
+        Year:"Năm"
+    },
+    Calculation:{
+        Multiple: "*",
+        Divide:"/",
+        MultipleText:"* - Nhân",
+        DivideText:"/ - Chia"
+    },
    StatusOption:{
     Using: {text: "Không", value: 1},
     NotUsing: {text:"Có",value: 2}

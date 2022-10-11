@@ -4,6 +4,12 @@
 .label{
     margin-right: 24px;
     cursor: pointer;
+    padding: 2px;
+    border:1px solid transparent ;
+}
+.label:hover{
+    background-color: #E4F2EA;
+    border:1px solid #0072BC ;
 }
 .form__title{
     color: #fff;

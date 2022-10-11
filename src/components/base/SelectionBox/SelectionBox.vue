@@ -1,15 +1,23 @@
 <template>
   <div class="selectionbox" :class="div_class">
-    <button class="btn" @click="showDropDown($event)" v-if="isButtonShow">
-      {{ fillterText }}
-    </button>
-    <div style="display: flex" v-if="isSelectShow">
+    <OnClickOutside @trigger="onClickOutside">
+      <button class="btn" @click="showDropDown($event)" v-if="isButtonShow">
+        {{ fillterText }}
+      </button>
+    </OnClickOutside>
+    <div
+      style="display: flex"
+      v-if="isSelectShow"
+      @keydown="keyMonitor($event)"
+    >
       <input type="text" :value="optionValue" readonly :class="input_class" />
-      <div
-        class="icon icon-16 icon__dropdown"
-        :class="icon_class"
-        @click="showDropDown($event)"
-      ></div>
+      <OnClickOutside @trigger="onClickOutside">
+        <div
+          class="icon icon-16 icon__dropdown"
+          :class="icon_class"
+          @click="showDropDown($event)"
+        ></div>
+      </OnClickOutside>
     </div>
 
     <i v-show="isAdd" class="fa-solid fa-plus icon__add position__plus"></i>
@@ -31,8 +39,11 @@
 </style>
 <script>
 import { MISAEnum } from "../../../js/Enum.js";
+import { OnClickOutside } from "@vueuse/components";
+import { Resources } from "@/js/Resources";
 export default {
   emits: ["PageSize", "Status", "fillter"],
+  components: { OnClickOutside },
   props: [
     "div_class",
     "input_class",
@@ -52,12 +63,30 @@ export default {
     return {
       isShow: this.isDropDownShow, // ẩn hiện option của selectbox
       optionId: this.optionID, //id của option
-      optionValue: this.value,//giá trị khi đc chọn
+      optionValue: this.value, //giá trị khi đc chọn
       fillterText: MISAEnum.FillterOption.Contain.value, // loại fillter muốn thực hiện
+      index:0, // chỉ số của item được lựa chọn
     };
   },
+  watch:{
+    index(){
+      this.optionId = this.option[this.index].id;
+    }
+  },
   methods: {
-     /**
+    /**
+     * tắt dropdown khi click ra các vùng bên ngoài
+     * AUTHOR: YENVTH
+     * CreatedDate: 08/10/2022
+     */
+    onClickOutside() {
+      try {
+        this.isShow = false;
+      } catch (error) {
+        console.log(error);
+      }
+    },
+    /**
      *Hàm ẩn hiện dropdown
      * AUTHOR: YENVTH
      * CreatedDate:03/10/2022
@@ -65,7 +94,7 @@ export default {
     showDropDown() {
       this.isShow = !this.isShow;
     },
- /**
+    /**
      *Hàm gán dữ liệu khi chọn option
      * AUTHOR: YENVTH
      * CreatedDate:03/10/2022
@@ -78,27 +107,55 @@ export default {
         switch (this.optionType) {
           case MISAEnum.OptionType.Paging:
             this.optionValue = data.value;
-            this.$emit("PageSize", data.value);
+            this.$emit(Resources.EMIT_PAGESIZE, data.value);
             break;
           case MISAEnum.OptionType.Status:
             this.optionValue = data.text;
-            this.$emit("Status", data.value);
+            this.$emit(Resources.EMIT_STATUS, data.value);
             break;
           case MISAEnum.OptionType.Fillter:
             this.fillterText = data.value;
-            this.$emit("fillter", data.value);
+            this.$emit(Resources.EMIT_FILLTER, data.value);
             break;
           case MISAEnum.OptionType.Calculation:
             this.optionValue = data.value;
-            this.$emit("update:optionID", data.id);
-            this.$emit("updateDescription");
+            this.$emit(Resources.EMIT_UPDATE_OPTIONID, data.id);
             break;
           default:
-          this.$emit("update:value", data.text);
-          this.$emit("formatDate");
+            this.$emit(Resources.EMIT_UPDATE_VALUE, data.text);
+            this.$emit(Resources.EMIT_FORMATDATE);
             this.optionValue = data.text;
             break;
         }
+      } catch (error) {
+        console.log(error);
+      }
+    },
+    /**
+     *set index tương ứng với các phím tương ứng
+     * AUTHOR: YENVTH
+     * CreatedDate:03/10/2022
+     */
+    keyMonitor(event) {
+      try {
+          switch (event.key) {
+            case MISAEnum.KeyBoard.Enter:
+                 this.onClickOption(this.option[this.index]);
+              break;
+            case MISAEnum.KeyBoard.ArrowDown:
+              if(this.isShow) this.index =this.index >= this.option.length - 1
+                ? 0
+                : this.index + 1;
+              this.isShow = true;
+              break;
+            case MISAEnum.KeyBoard.ArrowUp: 
+            if(this.isShow) this.index =
+              this.index <= 0
+                ? this.option.length - 1
+                : this.index - 1;
+              this.isShow = true;
+              break;
+          }
       } catch (error) {
         console.log(error);
       }

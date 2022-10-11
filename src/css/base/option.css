@@ -22,4 +22,5 @@
     border-radius: 2px;
     border: 1px solid #babec5;
     height: fit-content;
+    z-index: 2;
 }

@@ -44,3 +44,6 @@ body {
 .border-red {
     border: 1px solid #f00!important;
 }
+.text-right{
+    text-align: right;
+}

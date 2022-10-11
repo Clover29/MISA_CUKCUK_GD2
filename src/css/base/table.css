@@ -22,7 +22,6 @@ overflow: auto;
     width: 100%;
 }
 .table__data tr:hover{
-    cursor: pointer;
     background-color: #D7e9f4;
 }
 .table__data tr:first-child{
@@ -60,7 +59,16 @@ overflow: auto;
 .row__input{
     border: none;
     text-align: right;
+    width: 100%;
+    background-color: transparent;
 }
 .row__selected{
     background-color:#D7e9f4 ;
+}
+.text__elipsis{
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    width: 300px;
+    max-width: 300px;
 }

@@ -38,6 +38,15 @@
     color: #0072BC;
     margin-right: 8px;
 }
+.icon__success{
+    background-position: -1602px -258px;
+}
+.icon__error{
+    background-position: -762px -146px;
+}
+.icon__alert--close{
+    background-position: -79px -312px; 
+ }
 .icon__duplicate{
     color: #0199FB;
     margin-right: 8px;

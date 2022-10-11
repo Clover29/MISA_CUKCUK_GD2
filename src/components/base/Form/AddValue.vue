@@ -5,9 +5,6 @@
         <div class="form__title">{{ title }}</div>
         <div class="dialog__header--rigt">
           <i
-            class="fa-solid fa-up-right-and-down-left-from-center icon__resize"
-          ></i>
-          <i
             class="fa-solid fa-circle-xmark icon__close"
             @click="btnCloseOnClick"
           ></i>
@@ -21,14 +18,14 @@
               >{{ label }}
               <span class="input--required">(*)</span>
             </label>
-            <input class="form__text" type="text" v-model="firstValue" />
+            <input ref="FirstInput" class="form__text" type="text" v-model="firstValue" />
           </div>
           <div class="row" v-if="type == stockType">
             <label class="form__label"
               >Tên kho
               <span class="input--required">(*)</span>
             </label>
-            <input class="form__text" type="text" v-model="secondValue" />
+            <input ref="StockName" class="form__text" type="text" v-model="secondValue" />
           </div>
         </div>
         <div class="dialog__footer">
@@ -47,39 +44,125 @@
       </div>
     </div>
   </div>
+  <ThePopUp
+    v-if="isShowPopUp"
+    :message="message"
+    @onNoClick="closeNotice"
+    :PopUpType="popUpType"
+    :closePopUp="closeNotice"
+    @focus="setFocus"
+  />
 </template>
   <script>
 import axios from "axios";
 import { MISAEnum } from "@/js/Enum";
 import { Resources } from "@/js/Resources";
+import ThePopUp from "../PopUp/ThePopUp.vue";
+import LoadData from "../Loading/LoadData.vue";
 export default {
   name: "AddValue",
+  components: { ThePopUp, LoadData },
+  emits: ["loadStock", "loadUnit"],
   props: ["title", "label", "type", "isShow"],
   data() {
     return {
-      isLoad: false,
-      unitType: MISAEnum.AddingType.Unit,
-      stockType: MISAEnum.AddingType.Stock,
-      firstValue: "",
-      secondValue: "",
+      isLoad: false, //ẩn hiện loading
+      unitType: MISAEnum.AddingType.Unit, //loại form add là unit
+      stockType: MISAEnum.AddingType.Stock, //loại form add là stock
+      firstValue: "", //giá trị hàng đầu tiên trong form
+      secondValue: "", //giá trị hàng thứ hai trong form
       unit: {},
       stock: {},
+      message: [
+        {
+          msg: "",
+          tittle: "",
+        },
+      ], // nội dung pop up thông báo
+      isShowPopUp: false,
     };
   },
   methods: {
-    btnCloseOnClick() {
-      this.$emit("update:isShow", false);
-    },
-    saveOnClick() {
-      if (this.type == this.unitType) {
-        this.insertUnit();
-      } else {
-        this.insertStock();
+     /**
+     * Hàm focus vào input bị lỗi đầu tiên
+     * AUTHOR: YENVTH
+     * CreatedDate: 08/10/2022
+     */
+    setFocus(){
+      try {
+        var refName = this.message[0].tittle;
+        if (this.$refs[refName]) this.$refs[refName].focus();
+      } catch (error) {
+        console.log(error);
       }
     },
+    /**
+     *sự kiện cho nút đóng
+     * AUTHOR: YENVTH
+     * CreatedDate:03/10/2022
+     */
+    btnCloseOnClick() {
+      this.$emit(Resources.EMIT_UPDATE_ISSHOW, false);
+    },
+    closeNotice(isShow) {
+      this.isShowPopUp = isShow;
+    },
+    /**
+     *Hàm validate dữ liệu
+     * AUTHOR: YENVTH
+     * CreatedDate:28/09/2022
+     */
+    validate() {
+      try {
+        this.message = [];
+        if (this.firstValue == "") {
+          this.message.push({
+            msg:
+              this.type == this.unitType
+                ? Resources.UNIT_ERROR
+                : Resources.STOCK_CODE_ERROR,
+            tittle: Resources.REF_FISRT_INPUT,
+          });
+        }
+        if (this.type == this.stockType && this.secondValue == "") {
+          this.message.push({
+            msg: Resources.STOCK_NAME_ERROR,
+            tittle: Resources.REF_STOCK_NAME,
+          });
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    },
+    /**
+     *sự kiện cho nút cất
+     * AUTHOR: YENVTH
+     * CreatedDate:03/10/2022
+     */
+    saveOnClick() {
+      this.validate();
+      if (this.message) {
+        if (this.message.length > 0) {
+          this.isShowPopUp = true;
+          this.popUpType = MISAEnum.PopUpType.Error;
+        } else {
+          if (this.type == this.unitType) {
+            this.insertUnit();
+          } else {
+            this.insertStock();
+          }
+        }
+      }
+    },
+    /**
+     *Thực hiện chức năng thêm đơn vị
+     * AUTHOR: YENVTH
+     * CreatedDate:03/10/2022
+     */
     insertUnit() {
       this.unit = {
-        unitName: this.firstValue
+        unitName: this.firstValue,
+        modifiedDate: new Date(),
       };
       this.isLoad = true;
       axios
@@ -89,18 +172,41 @@ export default {
         )
         .then((response) => {
           if (response.data) {
-            this.$emit("update:isShow", false);
-            this.$emit("loadUnit");
+            this.$emit(Resources.EMIT_UPDATE_ISSHOW, false);
+            this.$emit(Resources.EMIT_LOAD_UNIT,true);
           }
         })
         .catch((error) => {
           console.log(error);
+          if (error.response.data.errorCode == 3) {
+            this.isLoad = false;
+            this.isShowPopUp = true;
+            this.popUpType = MISAEnum.PopUpType.Error;
+            this.message = [];
+            this.message.push({
+              msg: Resources.DUPLICATE_UNIT,
+            });
+          } else {
+            this.isLoad = false;
+            this.isShowPopUp = true;
+            this.popUpType = MISAEnum.PopUpType.Error;
+            this.message = [];
+            this.message.push({
+              msg: error.response.data.userMsg,
+            });
+          }
         });
     },
+    /**
+     *thực hiện chức năng thêm kho
+     * AUTHOR: YENVTH
+     * CreatedDate:03/10/2022
+     */
     insertStock() {
       this.stock = {
         stockCode: this.firstValue,
         stockName: this.secondValue,
+        modifiedDate: new Date(),
       };
       this.isLoad = true;
       axios
@@ -110,12 +216,29 @@ export default {
         )
         .then((response) => {
           if (response.data) {
-            this.$emit("update:isShow", false);
-            this.$emit("loadStock");
+            this.$emit(Resources.EMIT_UPDATE_ISSHOW, false);
+            this.$emit(Resources.EMIT_LOAD_STOCK,true);
           }
         })
         .catch((error) => {
           console.log(error);
+          if (error.response.data.errorCode == 3) {
+            this.isLoad = false;
+            this.isShowPopUp = true;
+            this.popUpType = MISAEnum.PopUpType.Error;
+            this.message = [];
+            this.message.push({
+              msg: Resources.DUPLICATE_STOCK,
+            });
+          } else {
+            this.isLoad = false;
+            this.isShowPopUp = true;
+            this.popUpType = MISAEnum.PopUpType.Error;
+            this.message = [];
+            this.message.push({
+              msg: error.response.data.userMsg,
+            });
+          }
         });
     },
   },

@@ -26,11 +26,11 @@
           </div>
         </div></div>
         <div class="popup__footer">
-          <button  v-if="PopUpType == error" class="btn" @click="btnCloseOnClick">
+          <button ref="firstButton" v-if="PopUpType == error" class="btn" @click="btnCloseOnClick">
              Đóng
             </button>
           <div class="footer__right" v-else>
-            <button class="btn" style="margin-right: 8px" @click="onBtnYesClick">Có</button>
+            <button  ref="firstButton" class="btn" style="margin-right: 8px" @click="onBtnYesClick">Có</button>
             <button class="btn" style="margin-right: 8px" @click="onBtnNoClick">Không</button>
             <button  v-if="PopUpType == confirm" class="btn" @click="btnCloseOnClick">
              Hủy
@@ -46,6 +46,7 @@
 </style>
   <script>
 import { MISAEnum } from '@/js/Enum';
+import { Resources } from '@/js/Resources';
 export default {
   name:"ThePopUp",
   props:["message", "PopUpType","closePopUp"],
@@ -63,7 +64,11 @@ export default {
      * CreatedDate:03/10/2022
      */
     btnCloseOnClick(){
-      this.closePopUp(false);
+      
+      if(this.PopUpType == this.error){
+         this.$emit(Resources.EMIT_FOCUS);
+      }
+        this.closePopUp(false); 
     },
      /**
      *Hàm bắt sự kiện khi click button "Yes"
@@ -72,7 +77,7 @@ export default {
      */
     onBtnYesClick(){
       this.closePopUp(false);
-     this.$emit("onYesClick");
+     this.$emit(Resources.EMIT_YES_CLICK);
     },
      /**
      *Hàm bắt sự kiện khi click  "No"
@@ -81,8 +86,11 @@ export default {
      */
     onBtnNoClick(){
       this.closePopUp(false);
-      this.$emit("onNoClick");
+      this.$emit(Resources.EMIT_NO_CLICK);
     }
+  },
+  mounted(){
+    if(this.$refs.firstButton) this.$refs.firstButton.focus();
   }
 };
 </script>

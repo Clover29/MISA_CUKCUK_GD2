@@ -7,14 +7,16 @@
       ref="input"
       v-model = "value"
       @input="onEditName"
-      @blur="validate"
+      @blur="validate(false)"
       @keydown="keyMonitor($event)"
     />
-    <div
+    <OnClickOutside @trigger="onClickOutside">
+       <div
       class="icon icon-16 icon__dropdown"
       :class="dropdown__icon"
       @click="showDropDown"
-    ></div>
+    ></div >
+    </OnClickOutside>
     <i
       class="fa-solid fa-plus icon__add position__plus"
       :class="plus__icon"
@@ -37,8 +39,12 @@
 @import url(combobox.css);
 </style>
    <script>
+   import { Resources } from "@/js/Resources";
+import { OnClickOutside } from "@vueuse/components";
+import { MISAEnum } from '@/js/Enum';
 export default {
   name: "ComboboxVue",
+  components: {OnClickOutside},
   props: 
   ["div_class",
     "width",
@@ -55,7 +61,7 @@ export default {
       isShow: false, // hiển thị option
       isDropdownClick:false, // check button dropdown có đc click hay k
       index:0, // chỉ số của item được lựa chọn
-      value:this.Name, // giá trị của input
+      value:this.Name ? this.Name : "", // giá trị của input
     }
   },
   watch:{
@@ -65,15 +71,8 @@ export default {
      * CreatedDate:03/10/2022
      */
     Name:function(value){
-      this.value = value;
-    },
-     /**
-     *validate khi value thay đổi
-     * AUTHOR: YENVTH
-     * CreatedDate:03/10/2022
-     */
-    value:function(){
-      this.validate();
+      this.value = value ? value : ""; 
+      this.validate(false);
     },
      /**
      *update prop Name và id khi index thay đổi
@@ -82,8 +81,8 @@ export default {
      */
     index() {
       try {
-        this.$emit('update:Name',this.$refs.input.value); 
-        this.$emit('update:ID',this.filteredOptions[this.index].Id);
+        this.$emit(Resources.EMIT_UPDATE_NAME,this.$refs.input.value); 
+        this.$emit(Resources.EMIT_UPDATE_ID,this.filteredOptions[this.index].Id);
       } catch (error) {
         console.log(error);
       }
@@ -127,8 +126,8 @@ export default {
       } else {
         const filtered = [];
         const regOption = new RegExp(this.value, "ig");
-        for (const option of this.optionData) {
-          if (option.Name.match(regOption)) {
+           for (const option of this.optionData) {
+          if (option.Name.match(regOption) ) {
             filtered.push(option);
           }
         }
@@ -151,12 +150,29 @@ export default {
      * CreatedDate:03/10/2022
      */
     onClickOption(value) { 
+      try {
       this.isDropdownClick = true;
-      this.$emit('update:Name',value.Name );
-      this.$emit('update:ID',value.Id );
-      this.$emit('updateDescription'); 
+      this.$emit(Resources.EMIT_UPDATE_NAME,value.Name );
+      this.$emit(Resources.EMIT_UPDATE_ID,value.Id );
+      this.$emit(Resources.EMIT_VALIDATE_UNIT);
       this.value = value.Name;
       this.isShow = false;
+      } catch (error) {
+        console.log(error);
+      }
+     
+    },
+     /**
+     * tắt dropdown khi click ra các vùng bên ngoài
+     * AUTHOR: YENVTH
+     * CreatedDate: 08/10/2022
+     */
+     onClickOutside() {
+      try {
+        this.isShow = false;
+      } catch (error) {
+        console.log(error);
+      }
     },
      /**
      *hiện option khi edit input
@@ -167,6 +183,8 @@ export default {
       try {
         this.isShow = true;
         this.isDropdownClick = false;
+        this.index = 0;
+        this.$emit(Resources.EMIT_UPDATE_ID,this.filteredOptions[0].Id);
       } catch (error) {
         console.log(error);
       }
@@ -176,12 +194,12 @@ export default {
      * AUTHOR: YENVTH
      * CreatedDate:03/10/2022
      */
-    validate(){
-      if(!this.text_class){
-        if(this.$refs.input &&!this.Name){
-          this.$refs.input.classList.add('border-red');
+    validate(isSaveClick){
+      if(!this.text_class&&(this.Name!=""|| isSaveClick)){
+        if(this.$refs.input && this.value==""){
+          this.$refs.input.classList.add(Resources.BORDER_CLASS);
         }else{
-          this.$refs.input.classList.remove('border-red');
+          this.$refs.input.classList.remove(Resources.BORDER_CLASS);
         }
       }
     },
@@ -191,7 +209,8 @@ export default {
      * CreatedDate:03/10/2022
      */
     btnAddOnClick(){
-      this.$emit('addValue');
+      this.isDropdownClick = true;
+      this.$emit(Resources.EMIT_ADD);
     },
      /**
      * set vị trí của thanh cuộn khi kéo lên hoặc kéo xuống
@@ -201,7 +220,7 @@ export default {
      setScroll() {
       try {
         if (this.$refs.scrollContainer) {
-          this.$refs.scrollContainer.scrollTop = 26 * this.index;
+          this.$refs.scrollContainer.scrollTop = 25 * this.index;
         }
       } catch (error) {
         console.log(error);
@@ -216,23 +235,23 @@ export default {
       try {
         if (this.filteredOptions) {
           switch (event.key) {
-            case "Enter":
+            case MISAEnum.KeyBoard.Enter:
               this.onClickOption(this.filteredOptions[this.index]);
               break;
-            case "ArrowDown":
-              this.isShow = true;
-              this.index =
+            case MISAEnum.KeyBoard.ArrowDown: 
+            if(this.isShow) this.index =
                 this.index >= this.filteredOptions.length - 1
                   ? 0
                   : this.index + 1;
+              this.isShow = true;
               this.setScroll();
               break;
-            case "ArrowUp":
-              this.isShow = true;
-              this.index =
+            case MISAEnum.KeyBoard.ArrowUp:
+                if(this.isShow) this.index =
                 this.index <= 0
                   ? this.filteredOptions.length - 1
                   : this.index - 1;
+              this.isShow = true;
               this.setScroll();
               break;
           }
@@ -243,6 +262,9 @@ export default {
     },
     
   },
+  mounted(){
+    this.$refs.input.focus();
+  }
   
 };
 </script>
