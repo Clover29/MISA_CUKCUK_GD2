@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace MISA.AMIS.BL.StockBL
 {
-    public interface IStockBL:IBaseBL<Stock>
+    public interface IStockBL : IBaseBL<Stock>
     {
     }
 }

@@ -16,6 +16,7 @@ namespace MISA.CUKCUK.Common.Entities
     public class Material
     {
         #region Property
+
         /// <summary>
         /// ID nguyên vật liệu
         /// </summary>
@@ -107,7 +108,11 @@ namespace MISA.CUKCUK.Common.Entities
         /// </summary>
         public DateTime? ModifiedDate { get; set; }
 
+        /// <summary>
+        /// Danh sách đơn vị chuyển đổi
+        /// </summary>
         public List<ConversionUnit>? ConversionUnits { get; set; }
+
         #endregion
     }
 }

@@ -22,32 +22,75 @@ namespace MISA.AMIS.BL.BaseBL
         {
             _baseDL = baseDL;
         }
-      
+
         #endregion
 
         #region Method
+
+        /// <summary>
+        /// API Xóa 1 bản ghi
+        /// </summary>
+        /// <param name="recordID">ID của bản ghi cần xóa</param>
+        /// <returns>số bản ghi bị ảnh hưởng</returns>
+        /// Created by: VTHYEN (30/09/2022)
         public int DeleteOneRecord(Guid recordID)
         {
             return _baseDL.DeleteOneRecord(recordID);
         }
+
+        /// <summary>
+        /// Lấy tất cả bản ghi
+        /// </summary>
+        /// <returns> Tất cả bản ghi của một bảng</returns>
+        /// Created by: YENVTH (29/09/2022)
         public virtual IEnumerable<T> GetAllRecords()
         {
-            return _baseDL.getAllRecords();
+            return _baseDL.GetAllRecords();
         }
 
+        /// <summary>
+        /// API Lấy thông tin chi tiết của 1 bản ghi
+        /// </summary>
+        /// <param name="ID">ID của bản ghi muốn lấy thông tin chi tiết</param>
+        /// <returns>bản ghi muốn lấy thông tin chi tiết</returns>
+        /// Created by: VTHYEN (30/09/2022)
         public T GetRecordByID(Guid ID)
         {
             return _baseDL.GetRecordByID(ID);
         }
 
+        /// <summary>
+        /// API Thêm mới 1 bản ghi
+        /// </summary>
+        /// <param name="record">bản ghi muốn thêm mới</param>
+        /// <returns>số bản ghi bị ảnh hưởng</returns>
+        /// Created by: VTHYEN (30/09/2022)
         public int InsertOneRecord(T record)
         {
+            Validate(record);
             return _baseDL.InsertOneRecord(record);
         }
 
+        /// <summary>
+        /// API Sửa 1 bản ghi
+        /// </summary>
+        /// <param name="recordID">ID của bản ghi muốn sửa</param>
+        /// <param name="record">bản ghi muốn sửa</param>
+        /// <returns>số bản ghi bị ảnh hưởng</returns>
+        /// Created by: VTHYEN (30/09/2022)
         public int UpdateOneRecord(T record, Guid recordID)
         {
+            Validate(record);
             return _baseDL.UpdateOneRecord(record, recordID);
+        }
+
+        /// <summary>
+        /// Validate dữ liệu
+        /// </summary>
+        /// <param name="record">thông tin cần validate</param>
+        protected virtual void Validate(T record)
+        {
+
         }
         #endregion
 

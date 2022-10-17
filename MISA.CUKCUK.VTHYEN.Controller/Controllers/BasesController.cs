@@ -1,8 +1,13 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using MISA.AMIS.BL.BaseBL;
+using MISA.AMIS.BL.Exceptions;
+using MISA.CUKCUK.Common.DTO;
+using MISA.CUKCUK.Common.Enum;
+using MISA.CUKCUK.Common.Resources;
 using MySqlConnector;
 using Swashbuckle.AspNetCore.Annotations;
+using System;
 using System.Diagnostics;
 
 namespace MISA.CUKCUK.VTHYEN.Controller.Controllers
@@ -45,7 +50,12 @@ namespace MISA.CUKCUK.VTHYEN.Controller.Controllers
             catch (Exception ex)
             {
                 Console.WriteLine(ex.Message);
-                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
+                var errorResult = new ErrorResult(
+                  ErrorCode.Exception,
+                 Resource.OtherException,
+                  ex.Message,
+                  Activity.Current?.Id ?? HttpContext?.TraceIdentifier);
+                return StatusCode(StatusCodes.Status500InternalServerError, errorResult);
             }
         }
 
@@ -77,7 +87,13 @@ namespace MISA.CUKCUK.VTHYEN.Controller.Controllers
             catch (Exception exception)
             {
                 Console.WriteLine(exception.Message);
-                return StatusCode(StatusCodes.Status500InternalServerError, exception.Message);
+
+                var errorResult = new ErrorResult(
+                   ErrorCode.Exception,
+                  Resource.OtherException,
+                   exception.Message,
+                   Activity.Current?.Id ?? HttpContext?.TraceIdentifier);
+                return StatusCode(StatusCodes.Status500InternalServerError, errorResult);
             }
         }
 
@@ -86,7 +102,7 @@ namespace MISA.CUKCUK.VTHYEN.Controller.Controllers
         /// </summary>
         /// <param name="record">Đối tượng bản ghi muốn thêm mới</param>
         /// <returns>ID của nhân viên vừa thêm mới</returns>
-        /// Created by: VTHYEN (16/08/2022)
+        /// Created by: VTHYEN (30/09/2022)
         [HttpPost]
         [SwaggerResponse(StatusCodes.Status201Created, type: typeof(Guid))]
         [SwaggerResponse(StatusCodes.Status400BadRequest)]
@@ -107,13 +123,36 @@ namespace MISA.CUKCUK.VTHYEN.Controller.Controllers
                     return StatusCode(StatusCodes.Status400BadRequest);
                 }
             }
+            catch (ValidateException ex)
+            {
+                var errorResult = new ErrorResult(
+                    ErrorCode.Validate,
+                    ex.Message,
+                    ex.Data,
+                    Activity.Current?.Id ?? HttpContext?.TraceIdentifier);
+                return StatusCode(StatusCodes.Status400BadRequest, errorResult);
+            }
             catch (MySqlException mySqlException)
             {
-                return StatusCode(StatusCodes.Status400BadRequest, mySqlException.Message);
+                var errorResult = new ErrorResult(
+                   ErrorCode.DuplicateCode,
+                  Resource.DuplicateMaterialCode,
+                    mySqlException.Message,
+                   Activity.Current?.Id ?? HttpContext?.TraceIdentifier);
+                if (mySqlException.ErrorCode == MySqlErrorCode.DuplicateKeyEntry)
+                {
+                    return StatusCode(StatusCodes.Status400BadRequest, errorResult);
+                }
+                return StatusCode(StatusCodes.Status400BadRequest, errorResult);
             }
             catch (Exception exception)
             {
-                return StatusCode(StatusCodes.Status500InternalServerError, exception.Message);
+                var errorResult = new ErrorResult(
+                  ErrorCode.Exception,
+                 Resource.OtherException,
+                  exception.Message,
+                  Activity.Current?.Id ?? HttpContext?.TraceIdentifier);
+                return StatusCode(StatusCodes.Status500InternalServerError, errorResult);
             }
         }
 
@@ -123,7 +162,7 @@ namespace MISA.CUKCUK.VTHYEN.Controller.Controllers
         /// <param name="recordID">ID của bản ghi muốn sửa</param>
         /// <param name="record">bản ghi muốn sửa</param>
         /// <returns>số bản ghi bị ảnh hưởng</returns>
-        /// Created by: VTHYEN (16/08/2022)
+        /// Created by: VTHYEN (30/09/2022)
         [HttpPut("{recordID}")]
         [SwaggerResponse(StatusCodes.Status200OK, type: typeof(Guid))]
         [SwaggerResponse(StatusCodes.Status400BadRequest)]
@@ -144,13 +183,36 @@ namespace MISA.CUKCUK.VTHYEN.Controller.Controllers
                     return StatusCode(StatusCodes.Status404NotFound);
                 }
             }
+            catch (ValidateException ex)
+            {
+                var errorResult = new ErrorResult(
+                    ErrorCode.Validate,
+                    ex.Message,
+                    ex.Data,
+                    Activity.Current?.Id ?? HttpContext?.TraceIdentifier);
+                return StatusCode(StatusCodes.Status400BadRequest, errorResult);
+            }
             catch (MySqlException mySqlException)
             {
-                return StatusCode(StatusCodes.Status400BadRequest, mySqlException.Message);
+                var errorResult = new ErrorResult(
+                   ErrorCode.DuplicateCode,
+                  Resource.DuplicateMaterialCode,
+                    mySqlException.Message,
+                   Activity.Current?.Id ?? HttpContext?.TraceIdentifier);
+                if (mySqlException.ErrorCode == MySqlErrorCode.DuplicateKeyEntry)
+                {
+                    return StatusCode(StatusCodes.Status400BadRequest, errorResult);
+                }
+                return StatusCode(StatusCodes.Status400BadRequest, errorResult);
             }
             catch (Exception exception)
             {
-                return StatusCode(StatusCodes.Status500InternalServerError, exception.Message);
+                var errorResult = new ErrorResult(
+                  ErrorCode.Exception,
+                 Resource.OtherException,
+                  exception.Message,
+                  Activity.Current?.Id ?? HttpContext?.TraceIdentifier);
+                return StatusCode(StatusCodes.Status500InternalServerError, errorResult);
             }
         }
         /// <summary>
@@ -158,7 +220,7 @@ namespace MISA.CUKCUK.VTHYEN.Controller.Controllers
         /// </summary>
         /// <param name="recordID">ID của bản ghi muốn xóa</param>
         /// <returns>ID của nhân viên vừa xóa</returns>
-        /// Created by: VTHYEN (16/08/2022)
+        /// Created by: VTHYEN (30/09/2022)
         [HttpDelete("{recordID}")]
         [SwaggerResponse(StatusCodes.Status200OK, type: typeof(Guid))]
         [SwaggerResponse(StatusCodes.Status400BadRequest)]
@@ -181,7 +243,12 @@ namespace MISA.CUKCUK.VTHYEN.Controller.Controllers
             catch (Exception exception)
             {
                 Console.WriteLine(exception.Message);
-                return StatusCode(StatusCodes.Status400BadRequest, exception.Message);
+                var errorResult = new ErrorResult(
+                 ErrorCode.Exception,
+                Resource.OtherException,
+                 exception.Message,
+                 Activity.Current?.Id ?? HttpContext?.TraceIdentifier);
+                return StatusCode(StatusCodes.Status400BadRequest, errorResult);
             }
 
         }

@@ -13,7 +13,12 @@ namespace MISA.CUKCUK.Common.Ultilities
     /// </summary>
     public static class EntityUltilities
     {
-        public static string getTableName<T>()
+        /// <summary>
+        /// Lấy tên bảng theo class 
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public static string GetTableName<T>()
         {
             string tableName = typeof(T).Name;
             var tableAttributes = typeof(T).GetTypeInfo().GetCustomAttributes<TableAttribute>();

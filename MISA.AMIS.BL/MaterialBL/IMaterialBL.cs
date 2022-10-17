@@ -1,6 +1,7 @@
 ﻿using MISA.AMIS.BL.BaseBL;
 using MISA.CUKCUK.Common.DTO;
 using MISA.CUKCUK.Common.Entities;
+using MISA.CUKCUK.Common.Enum;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -26,10 +27,12 @@ namespace MISA.AMIS.BL.MaterialBL
         /// <summary>
         /// Lấy mã nhân viên tự động tăng
         /// </summary>
+        ///  <param name="materialName">Tên nguyên vật liệu</param> 
         /// <returns>
         /// Mã nhân viên tự động tăng
         /// </returns>
         ///  Created by: VTHYEN (04/10/2022)
         public string GetNewCode(string MaterialName);
+    
     }
 }

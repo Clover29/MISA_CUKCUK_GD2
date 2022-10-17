@@ -14,7 +14,7 @@ namespace MISA.CUKCUK.DL.BaseDL
         /// </summary>
         /// <returns> Tất cả bản ghi của một bảng</returns>
         /// Created by: YENVTH (29/09/2022)
-        public IEnumerable<T> getAllRecords();
+        public IEnumerable<T> GetAllRecords();
 
         /// <summary>
         /// API Lấy thông tin chi tiết của 1 bản ghi

@@ -1,11 +1,15 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using MISA.AMIS.BL.BaseBL;
+using MISA.AMIS.BL.Exceptions;
 using MISA.AMIS.BL.MaterialBL;
 using MISA.CUKCUK.Common.DTO;
 using MISA.CUKCUK.Common.Entities;
 using MISA.CUKCUK.Common.Enum;
+using MISA.CUKCUK.Common.Resources;
+using MySqlConnector;
 using Swashbuckle.AspNetCore.Annotations;
+using System.Diagnostics;
 
 namespace MISA.CUKCUK.VTHYEN.Controller.Controllers
 {
@@ -40,7 +44,7 @@ namespace MISA.CUKCUK.VTHYEN.Controller.Controllers
         [SwaggerResponse(StatusCodes.Status200OK, type: typeof(PagingData<Material>))]
         [SwaggerResponse(StatusCodes.Status400BadRequest)]
         [SwaggerResponse(StatusCodes.Status500InternalServerError)]
-        public IActionResult FillterEmployees([FromQuery] string? MaterialCode,
+        public IActionResult FillterMaterials([FromQuery] string? MaterialCode,
             [FromQuery] string? MaterialName,
             [FromQuery] string? Feature,
             [FromQuery] string? UnitName,
@@ -69,7 +73,12 @@ namespace MISA.CUKCUK.VTHYEN.Controller.Controllers
             catch (Exception exception)
             {
                 Console.WriteLine(exception.Message);
-                return StatusCode(StatusCodes.Status500InternalServerError, exception.Message);
+                var errorResult = new ErrorResult(
+                 ErrorCode.Exception,
+                Resource.OtherException,
+                 exception.Message,
+                 Activity.Current?.Id ?? HttpContext?.TraceIdentifier);
+                return StatusCode(StatusCodes.Status500InternalServerError, errorResult);
             }
 
         }
@@ -95,7 +104,12 @@ namespace MISA.CUKCUK.VTHYEN.Controller.Controllers
             catch (Exception exception)
             {
                 Console.WriteLine(exception.Message);
-                return StatusCode(StatusCodes.Status500InternalServerError, exception.Message);
+                var errorResult = new ErrorResult(
+                  ErrorCode.Exception,
+                 Resource.OtherException,
+                  exception.Message,
+                  Activity.Current?.Id ?? HttpContext?.TraceIdentifier);
+                return StatusCode(StatusCodes.Status500InternalServerError, errorResult);
             }
 
         }

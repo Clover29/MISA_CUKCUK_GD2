@@ -13,7 +13,14 @@ namespace MISA.CUKCUK.Common.Entities
     [Table("unit")]
     public class Unit
     {
+        /// <summary>
+        /// Mã đơn vị
+        /// </summary>
         public Guid UnitID { get; set; }
+
+        /// <summary>
+        /// Tên đơn vị
+        /// </summary>
         public string UnitName { get; set; }
 
         /// <summary>

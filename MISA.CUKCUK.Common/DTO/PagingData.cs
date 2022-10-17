@@ -28,10 +28,13 @@ namespace MISA.CUKCUK.Common.DTO
         public long TotalPage { get; set; }
 
         /// <summary>
-        /// Số bản ghi trong 1 trang hiện tại
+        /// trang hiện tại
         /// </summary>
         public long CurrentPage { get; set; }
-
+        
+        /// <summary>
+        /// Số bản ghi trong 1 trang hiện tại
+        /// </summary>
         public long CurrentPageRecords { get; set; }
     }
 }

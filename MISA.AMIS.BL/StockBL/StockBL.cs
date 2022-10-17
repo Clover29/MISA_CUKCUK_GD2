@@ -12,15 +12,19 @@ namespace MISA.AMIS.BL.StockBL
 {
     public class StockBL : BaseBL<Stock>, IStockBL
     {
-        #region Feild
+        #region Field
+
         private IStockDL _stockDL;
+
         #endregion
+
         #region Constructor
+
         public StockBL(IStockDL stockDL) : base(stockDL)
         {
             _stockDL = stockDL;
         }
-        #endregion
 
+        #endregion
     }
 }

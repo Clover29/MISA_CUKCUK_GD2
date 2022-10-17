@@ -13,8 +13,19 @@ namespace MISA.CUKCUK.Common.Entities
     [Table("stock")]
     public class Stock
     {
+        /// <summary>
+        /// ID Kho
+        /// </summary>
         public Guid StockID { get; set; }
+
+        /// <summary>
+        /// Mã Kho
+        /// </summary>
         public string StockCode { get; set; }
+
+        /// <summary>
+        /// Tên Kho
+        /// </summary>
         public string StockName { get; set; }
 
         /// <summary>

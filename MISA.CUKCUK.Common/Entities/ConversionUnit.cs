@@ -9,10 +9,36 @@ namespace MISA.CUKCUK.Common.Entities
 {
     public class ConversionUnit
     {
+        /// <summary>
+        /// ID đơn vị chuyển đổi
+        /// </summary>
         public Guid ConversionUnitID { get; set; }
-        public string ConversionUnitName { get; set; }
-        public Calculation Calculation { get; set; }
-        public double ConversionRate { get; set; }
+
+        /// <summary>
+        /// Tên đơn vị chuyển đổi
+        /// </summary>
+        public string? ConversionUnitName { get; set; }
+
+        /// <summary>
+        /// ID đơn vị chuyển đổi cũ
+        /// </summary>
+        public Guid? OldUnitID { get; set; }
+
+        /// <summary>
+        /// phép tính
+        /// </summary>
+        public Calculation? Calculation { get; set; }
+
+        /// <summary>
+        /// tỷ lệ chuyển đổi
+        /// </summary>
+        public double? ConversionRate { get; set; }
+
+        /// <summary>
+        /// Hành động khi thao tác với conversion unit
+        /// </summary>
+        public ConversionUnitAction Action { get; set; }
+
         /// <summary>
         /// Người tạo
         /// </summary>

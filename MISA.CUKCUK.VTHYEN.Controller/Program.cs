@@ -23,6 +23,7 @@ builder.Services.AddScoped<IStockDL, StockDL>();
 
 builder.Services.AddScoped<IUnitBL, UnitBL>();
 builder.Services.AddScoped<IUnitDL, UnitDL>();
+
 DatabaseContext.ConnectionString = builder.Configuration.GetConnectionString("MySqlConnection");
 // Add services to the container.
 

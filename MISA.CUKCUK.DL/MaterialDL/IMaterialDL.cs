@@ -1,5 +1,6 @@
 ﻿using MISA.CUKCUK.Common.DTO;
 using MISA.CUKCUK.Common.Entities;
+using MISA.CUKCUK.Common.Enum;
 using MISA.CUKCUK.DL.BaseDL;
 using System;
 using System.Collections.Generic;
@@ -33,5 +34,6 @@ namespace MISA.CUKCUK.DL.MaterialDL
         ///  Created by: VTHYEN (04/10/2022)
         public string GetNewCode(string MaterialName);
 
+       
     }
 }

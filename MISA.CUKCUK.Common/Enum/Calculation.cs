@@ -6,11 +6,19 @@ using System.Threading.Tasks;
 
 namespace MISA.CUKCUK.Common.Enum
 {
+    /// <summary>
+    /// Phép tính
+    /// </summary>
     public enum Calculation
     {
-        Plus = 1,
-        Minus = 2,
-        Multiple = 3,
-        Divide = 4
+        /// <summary>
+        /// Nhân
+        /// </summary>
+        Multiple = 1,
+
+        /// <summary>
+        /// Chia
+        /// </summary>
+        Divide = 2
     }
 }
