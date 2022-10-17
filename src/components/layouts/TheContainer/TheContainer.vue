@@ -25,14 +25,14 @@
         <div
           class="label color__black"
           @click="onDuplicateClick"
-          title="Nhân Bản (Ctrl + U)"
+          title="Nhân Bản (Ctrl + D)"
         >
           <i class="fa-regular fa-copy icon__duplicate"></i>Nhân Bản
         </div>
         <div
           class="label color__black"
           @click="onUpdateClick"
-          title="Sửa (Ctrl + D)"
+          title="Sửa (Ctrl + U)"
         >
           <i class="fa-solid fa-pen-to-square icon__add"></i>Sửa
         </div>
