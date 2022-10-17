@@ -39,7 +39,7 @@
 @import url(combobox.css);
 </style>
    <script>
-   import { Resources } from "@/js/Resources";
+import { Constant } from "@/js/Constant";
 import { OnClickOutside } from "@vueuse/components";
 import { MISAEnum } from '@/js/Enum';
 export default {
@@ -60,7 +60,7 @@ export default {
     return {
       isShow: false, // hiển thị option
       isDropdownClick:false, // check button dropdown có đc click hay k
-      index:0, // chỉ số của item được lựa chọn
+      index:-1, // chỉ số của item được lựa chọn
       value:this.Name ? this.Name : "", // giá trị của input
     }
   },
@@ -81,8 +81,8 @@ export default {
      */
     index() {
       try {
-        this.$emit(Resources.EMIT_UPDATE_NAME,this.$refs.input.value); 
-        this.$emit(Resources.EMIT_UPDATE_ID,this.filteredOptions[this.index].Id);
+        this.$emit(Constant.EMIT_UPDATE_NAME,this.$refs.input.value); 
+        this.$emit(Constant.EMIT_UPDATE_ID,this.filteredOptions[this.index].Id);
       } catch (error) {
         console.log(error);
       }
@@ -142,6 +142,7 @@ export default {
      * CreatedDate:03/10/2022
      */
     showDropDown() {
+      this.isDropdownClick = true;
       this.isShow = !this.isShow;
     },
      /**
@@ -152,9 +153,9 @@ export default {
     onClickOption(value) { 
       try {
       this.isDropdownClick = true;
-      this.$emit(Resources.EMIT_UPDATE_NAME,value.Name );
-      this.$emit(Resources.EMIT_UPDATE_ID,value.Id );
-      this.$emit(Resources.EMIT_VALIDATE_UNIT);
+      this.$emit(Constant.EMIT_UPDATE_NAME,value.Name );
+      this.$emit(Constant.EMIT_UPDATE_ID,value.Id );
+      this.$emit(Constant.EMIT_VALIDATE_UNIT);
       this.value = value.Name;
       this.isShow = false;
       } catch (error) {
@@ -184,7 +185,7 @@ export default {
         this.isShow = true;
         this.isDropdownClick = false;
         this.index = 0;
-        this.$emit(Resources.EMIT_UPDATE_ID,this.filteredOptions[0].Id);
+        this.$emit(Constant.EMIT_UPDATE_ID,this.filteredOptions[0].Id);
       } catch (error) {
         console.log(error);
       }
@@ -197,9 +198,9 @@ export default {
     validate(isSaveClick){
       if(!this.text_class&&(this.Name!=""|| isSaveClick)){
         if(this.$refs.input && this.value==""){
-          this.$refs.input.classList.add(Resources.BORDER_CLASS);
+          this.$refs.input.classList.add(Constant.BORDER_CLASS);
         }else{
-          this.$refs.input.classList.remove(Resources.BORDER_CLASS);
+          this.$refs.input.classList.remove(Constant.BORDER_CLASS);
         }
       }
     },
@@ -210,12 +211,12 @@ export default {
      */
     btnAddOnClick(){
       this.isDropdownClick = true;
-      this.$emit(Resources.EMIT_ADD);
+      this.$emit(Constant.EMIT_ADD);
     },
      /**
      * set vị trí của thanh cuộn khi kéo lên hoặc kéo xuống
      * AUTHOR: YENVTH
-     * CreatedDate: 08/08/2022
+     * CreatedDate: 08/10/2022
      */
      setScroll() {
       try {
@@ -239,6 +240,7 @@ export default {
               this.onClickOption(this.filteredOptions[this.index]);
               break;
             case MISAEnum.KeyBoard.ArrowDown: 
+            if(this.index == -1) this.index= 0;
             if(this.isShow) this.index =
                 this.index >= this.filteredOptions.length - 1
                   ? 0

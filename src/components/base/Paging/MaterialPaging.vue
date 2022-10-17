@@ -22,6 +22,7 @@
         name="paging"
         v-model="pageNumber"
         class="paging_number"
+        @focus="removeEvent"
         @keydown.enter="loadData"
       />
       trên
@@ -52,7 +53,7 @@
         :option_class="'paging__position'"
         :option="option"
         :optionType="type"
-        :optionID="option[0].id"
+        :optionID="option[2].id"
         @PageSize="getPageSize"
       />
     </div>
@@ -66,16 +67,16 @@
 @import url(paging.css);
 </style>
 <script>
-import { Resources } from "@/js/Resources";
+import { Constant } from "@/js/Constant";
 import { MISAEnum } from "../../../js/Enum.js";
 import SelectionBox from "../SelectionBox/SelectionBox.vue";
 export default {
   name: "MaterialPaging",
   components: { SelectionBox },
-  emits: ["LoadData"],
+  emits: ["LoadData","update:pageSize"],
   props: [
     "totalRecord",
-    "totalPage",
+    "TotalPage",
     "materialFillter",
     "pageSize",
     "PageNumber",
@@ -93,38 +94,45 @@ export default {
       firstRecord: 1, // bản ghi đầu tiên của 1 trang
       lastRecord: this.pageSize, // bản ghi cuối của 1 trang
       isEnter: true, // kiểm tra phím enter được ấn hay không
+      totalPage : this.TotalPage // tổng số trang hiện có
     };
   },
   watch: {
     pageNumber: function () {
-      if (this.pageNumber && this.pageNumber > 0 && !this.isEnter) {
-        this.loadData();
-      }
-      this.firstRecord =
+      if (this.pageNumber && this.pageNumber > 0 && this.pageNumber <= this.totalPage) { 
+         this.firstRecord =
         this.firstRecord > 0 ? (this.pageNumber - 1) * this.pageSize + 1 : 1;
-      this.lastRecord =
+        if(!this.isEnter) this.lastRecord =
         this.firstRecord + this.pageSize - 1 > this.totalRecord
           ? this.totalRecord
           : this.firstRecord + this.pageSize - 1;
+        if(!this.isEnter) this.loadData();
+      }
     },
   },
   methods: {
     getPageSize(pageSize) {
       try {
-        this.isEnter = false;
-        this.$emit(Resources.EMIT_UPDATE_PAGESIZE, pageSize);
+        this.isEnter = true;
+        this.$emit(Constant.EMIT_UPDATE_PAGESIZE, pageSize);
         this.pageNumber = 1;
-        this.lastRecord = pageSize;
-        this.$emit(  Resources.EMIT_LOAD_DATA, pageSize, this.pageNumber, this.materialFillter);
+        this.firstRecord = 1;
+        this.lastRecord = this.firstRecord + pageSize - 1 > this.totalRecord
+          ? this.totalRecord
+          : this.firstRecord + pageSize - 1;
+       this.$emit(Constant.EMIT_LOAD_DATA, pageSize, this.pageNumber, this.materialFillter);
+       
       } catch (error) {
         console.log(error);
       }
     },
     loadData() {
       try {
+        if(!this.pageNumber.toString().match(/[0-9]+/g) || this.pageNumber < 1) this.pageNumber = 1;
+        if(this.pageNumber > this.totalPage) this.pageNumber = this.totalPage;
         this.isEnter = true;
         this.$emit(
-          Resources.EMIT_LOAD_DATA,
+          Constant.EMIT_LOAD_DATA,
           this.pageSize,
           this.pageNumber,
           this.materialFillter
@@ -132,6 +140,9 @@ export default {
       } catch (error) {
         console.log(error);
       }
+    },
+    removeEvent() {
+    this.$emit(Constant.EMIT_REMOVE_EVENT);
     },
   },
 };

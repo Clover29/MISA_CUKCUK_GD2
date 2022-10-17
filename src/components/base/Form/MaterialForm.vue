@@ -1,9 +1,14 @@
 <template>
-  <div class="dialog">
+  <div
+    class="dialog"
+    @keydown.esc="showPopUp(true)"
+    @keydown.ctrl.s.prevent.exact="saveOnClick(false)"
+    @keydown.ctrl.shift.s.prevent="saveOnClick(true)"
+  >
     <div class="dialog__content">
       <div class="dialog__header">
-        <div class="form__title">{{Title}} nguyên vật liệu</div>
-        <div class="dialog__header--rigt">
+        <div class="form__title">{{ Title }} nguyên vật liệu</div>
+        <div class="dialog__header--rigt" title="Đóng (Esc)">
           <i
             class="fa-solid fa-circle-xmark icon__close"
             @click="showPopUp(true)"
@@ -24,11 +29,13 @@
                 type="text"
                 ref="MaterialName"
                 @blur="getCode"
+                @input="getValue('MaterialName')"
                 v-model="material.materialName"
+                @keydown.shift.tab.prevent="repeatTabIndex('cancel')"
               />
             </div>
             <div class="row">
-              <label class="form__label"
+              <label class="form__label" title="Đơn vị tính"
                 >ĐVT
                 <span class="input--required">(*)</span>
               </label>
@@ -36,6 +43,7 @@
                 ref="Unit"
                 :width="'col_width_70'"
                 :dropdown__icon="'position__dropdown--72'"
+                :div_class="'col_width_45'"
                 :plus__icon="'position__plus--50'"
                 :UnitList="unitList"
                 v-model:ID="material.unitID"
@@ -49,7 +57,9 @@
               <input
                 class="form__text col__width_34 text-right"
                 type="text"
+                maxlength="5"
                 @blur="formatDate"
+                @keypress="isNumber($event)"
                 v-model="expiryDate"
               />
               <SelectionBox
@@ -72,7 +82,9 @@
               <input
                 class="form__text"
                 type="text"
+                maxlength="25"
                 ref="MaterialCode"
+                @input="getValue('MaterialCode')"
                 v-model="material.materialCode"
               />
             </div>
@@ -90,12 +102,16 @@
               />
             </div>
             <div class="row">
-              <label class="form__label">SL tồn tối thiểu</label>
+              <label class="form__label" title="Số lượng tồn tối thiểu"
+                >SL tồn tối thiểu</label
+              >
               <input
                 class="form__text col__width_34 text-right"
                 type="text"
                 name="Number"
+                maxlength="10"
                 v-model="material.inventoryNumber"
+                @blur="formatRate(material.inventoryNumber)"
               />
             </div>
           </div>
@@ -114,7 +130,7 @@
         <div class="body__table">
           <table class="table__data">
             <tr class="table__header">
-              <th class="col-1">STT</th>
+              <th class="col-1" title="Số thứ tự">STT</th>
               <th class="col-5">Đơn vị chuyển đổi</th>
               <th class="col-3">Tỷ lệ chuyển đổi</th>
               <th>Phép tính</th>
@@ -123,6 +139,7 @@
             <tr
               v-for="(item, index) in material.conversionUnits"
               :key="item.numerical"
+              v-show="material.conversionUnits[index].action != 3"
             >
               <td class="col-1">{{ index + 1 }}</td>
               <td class="col-5">
@@ -141,7 +158,9 @@
                 <input
                   class="row__input"
                   type="text"
+                  maxlength="10"
                   v-model="item.conversionRate"
+                  @blur="formatRate(item.conversionRate, index)"
                 />
               </td>
               <td>
@@ -188,40 +207,54 @@
         </div>
         <div class="table_button">
           <button
-            class="btn"
+            class="btn col__height--28"
             style="margin-right: 8px"
             @click="btnAddRowOnClick"
           >
             <i class="fa-solid fa-file-circle-plus icon__add"></i>Thêm dòng
           </button>
           <button
-            class="btn"
+            class="btn col__height--28"
             @click="btnDeleteRowOnClick"
-            :disabled="material.conversionUnits.length == 0"
+            :disabled="
+              (material.conversionUnits &&
+                material.conversionUnits.length == 0) ||
+              !material.conversionUnits
+            "
           >
             <i class="fa-solid fa-xmark icon__delete"></i>Xóa dòng
           </button>
         </div>
         <div class="dialog__footer">
-          <button class="btn">
+          <button class="btn col__height--28">
             <i class="fa-solid fa-circle-question icon__add"></i>Giúp
           </button>
           <div class="footer__right">
             <button
-              class="btn"
+              class="btn col__height--28"
               style="margin-right: 8px"
               @click="saveOnClick(false)"
+              title="Cất (Ctrl + S)"
             >
               <i class="fa-regular fa-floppy-disk icon__add"></i>Cất
             </button>
             <button
-              class="btn"
+              ref="save"
+              title="Cất và thêm (Ctrl + Shift + S)"
+              class="btn col__height--28"
               style="margin-right: 8px"
               @click="saveOnClick(true)"
             >
               <i class="fa-solid fa-floppy-disk icon__add"></i>Cất và thêm
             </button>
-            <button class="btn" @click="showPopUp(true)">
+            <button
+              ref="cancel"
+              class="btn col__height--28"
+              @click="showPopUp(true)"
+              title="Đóng (Esc)"
+              @keydown.tab.prevent="repeatTabIndex('MaterialName')"
+              @keydown.shift.tab.prevent.exact="repeatTabIndex('save')"
+            >
               <i class="fa-solid fa-ban icon__delete"></i>Hủy
             </button>
           </div>
@@ -246,6 +279,7 @@
     v-model:isShow="isShowAdding"
     @loadUnit="getAllUnit"
     @loadStock="getAllStock"
+    @getEmitShow="setEmitAlert"
   />
 </template>
 <style scoped>
@@ -254,6 +288,7 @@
  <script>
 import axios from "axios";
 import { Resources } from "../../../js/Resources.js";
+import { Constant } from "../../../js/Constant.js";
 import SelectionBox from "../SelectionBox/SelectionBox.vue";
 import ComboboxVue from "../Combobox/ComboBoxVue.vue";
 import { MISAEnum } from "@/js/Enum.js";
@@ -264,11 +299,11 @@ import AddValue from "./AddValue.vue";
 export default {
   name: "MaterialForm",
   components: { SelectionBox, ComboboxVue, ThePopUp, LoadData, AddValue },
-  emits: ["LoadData", "showAlert"],
-  props: ["showForm", "MaterialID", "ActionType","Title"],
+  emits: ["LoadData", "showAlert", "AddEvent"],
+  props: ["showForm", "MaterialID", "ActionType", "Title"],
   data() {
     return {
-      oldInput: "", // giấ trị tên nguyên vật liệu trước khi sửa
+      isSave: false, //kiểm tra button save đã đc click hay chưa
       isShowAdding: false, // hiển thị form thêm mới
       addingType: MISAEnum.AddingType.Unit, // xác định form thêm mới cho đơn vị hay kho
       title: Resources.UNIT_TITLE, // tittle cho form thêm mới
@@ -291,10 +326,18 @@ export default {
         { id: 4, value: MISAEnum.Date.Year, text: MISAEnum.Date.Year },
       ], // list hạn sử dụng
       expiryDate: null, // số thời gian của hạn sử dụng
-      expiryTime:  MISAEnum.Date.Day, //"giá trị hạn sử dụng"
+      expiryTime: MISAEnum.Date.Day, //"giá trị hạn sử dụng"
       calculation: [
-        { id: 1, value:MISAEnum.Calculation.Multiple, text: MISAEnum.Calculation.MultipleText },
-        { id: 2, value: MISAEnum.Calculation.Divide, text:MISAEnum.Calculation.DivideText },
+        {
+          id: 1,
+          value: MISAEnum.Calculation.Multiple,
+          text: MISAEnum.Calculation.MultipleText,
+        },
+        {
+          id: 2,
+          value: MISAEnum.Calculation.Divide,
+          text: MISAEnum.Calculation.DivideText,
+        },
       ], // list phép tính cần thực hiện
       rateType: MISAEnum.OptionType.Calculation, // loại phép tính
       material: {
@@ -305,7 +348,7 @@ export default {
         unitName: "",
         stockID: null,
         stockName: null,
-        inventoryNumber: 0,
+        inventoryNumber: "0,00",
         description: "",
         status: 1,
         createdBy: "admin",
@@ -324,8 +367,30 @@ export default {
         Status: 1,
       }, //danh sách các thuộc tính lọc nguyên vật liệu
       isChange: false, // xác định người dùng đã sửa form hay chưa
-      pageSize: 10, //số bản ghi muốn hiển thị trên một trang
+      pageSize: 50, //số bản ghi muốn hiển thị trên một trang
+      deleteIndex: 0, // index dòng cần xóa
     };
+  },
+  computed: {
+    minimumStock: {
+      get() {
+        let formatNumber = new Intl.NumberFormat("de-DE", {
+          minimumFractionDigits: 2,
+        });
+        // let formatNumber = new Intl.NumberFormat('de-DE')
+        if (this.material?.inventoryNumber) {
+          return formatNumber.format(this.material?.inventoryNumber);
+        }
+        return "";
+      },
+      set(newVal) {
+        newVal = newVal.replaceAll(".", "");
+        if (!this.material) {
+          this.material = {};
+        }
+        this.material.inventoryNumber = parseInt(newVal);
+      },
+    },
   },
   watch: {
     material: {
@@ -337,6 +402,53 @@ export default {
   },
   methods: {
     /**
+     * format số sang kiểu 0,00
+     * @param value: giá trị cần format
+     * @param index: chỉ số của tỷ lệ cần format
+     * AUTHOR: YENVTH
+     * CreatedDate: 08/10/2022
+     */
+    formatRate(value, index) {
+      if (value < 0 || value == "" || !value.toString().match(/[0-9]+/g)) {
+        if (index || index >= 0)
+          this.material.conversionUnits[index].conversionRate = "1,00";
+        this.material.inventoryNumber = "0,00";
+      }
+      let formatNumber = new Intl.NumberFormat("de-DE", {
+        minimumFractionDigits: 2,
+      });
+      if ( this.material.inventoryNumber.toString().search(',') < 0) {
+        this.material.inventoryNumber = parseFloat(
+          this.material.inventoryNumber
+            .toString()
+            .replace(".", ",")
+        );
+        this.material.inventoryNumber = formatNumber.format(
+          this.material.inventoryNumber
+        );
+      }
+
+      if (index >= 0 && this.material.conversionUnits[index] &&value.toString().search(',') < 0) {
+        this.material.conversionUnits[index].conversionRate = parseFloat(
+          this.material.conversionUnits[index].conversionRate
+            .toString()
+            .replace(".", ",")
+        );
+        this.material.conversionUnits[index].conversionRate =
+          formatNumber.format(
+            this.material.conversionUnits[index].conversionRate
+          );
+      }
+    },
+    /**
+     * quay lại tab index
+     * AUTHOR: YENVTH
+     * CreatedDate: 08/10/2022
+     */
+    repeatTabIndex(value) {
+      this.$refs[value].focus();
+    },
+    /**
      * Hàm focus vào input bị lỗi đầu tiên
      * AUTHOR: YENVTH
      * CreatedDate: 08/10/2022
@@ -346,7 +458,7 @@ export default {
         if (this.message) {
           var refName = this.message[0].tittle;
           if (
-            refName == Resources.REF_UNIT &&
+            refName == Constant.REF_UNIT &&
             this.$refs.Unit &&
             this.$refs.Unit.$refs.input
           ) {
@@ -367,12 +479,17 @@ export default {
     showPopUp(isShow) {
       try {
         this.message = [];
-        this.isShowPopUp = isShow;
-        if (isShow) {
+        if (this.isChange && isShow) {
+          this.isShowPopUp = true;
           this.message.push({
             msg: Resources.CLOSE_CONFIRM,
           });
           this.popUpType = MISAEnum.PopUpType.Confirm;
+        } else if (!this.isChange && this.popUpType == 0) {
+          this.btnCloseOnClick();
+        } else {
+          this.isShowPopUp = isShow;
+          this.popUpType = 0;
         }
       } catch (error) {
         console.log(error);
@@ -402,6 +519,7 @@ export default {
      */
     btnCloseOnClick() {
       this.showForm(false);
+      this.$emit(Constant.EMIT_ADD_EVENT);
     },
     /**
      *Hàm lấy ra giá trị hạn sử dụng
@@ -410,30 +528,34 @@ export default {
      */
     getExpiryDate(value) {
       try {
-        var now = new Date().getTime();
-        switch (this.expiryTime) {
-          case "Ngày":
-            value = new Date(value).getTime();
-            this.expiryDate = Math.ceil((value - now) / (24 * 60 * 60 * 1000));
-            break;
-          case "Tuần":
-            value = new Date(value).getTime();
-            this.expiryDate = Math.ceil(
-              (value - now) / (7 * 24 * 60 * 60 * 1000)
-            );
-            break;
-          case "Tháng":
-            value = new Date(value).getTime();
-            this.expiryDate = Math.ceil(
-              (value - now) / (30 * 24 * 60 * 60 * 1000)
-            );
-            break;
-          case "Năm":
-            value = new Date(value).getTime();
-            this.expiryDate = Math.ceil(
-              (value - now) / (365 * 24 * 60 * 60 * 1000)
-            );
-            break;
+        if (this.ActionType != MISAEnum.ActionType.Insert && value) {
+          var now = new Date().getTime();
+          switch (this.expiryTime) {
+            case MISAEnum.Date.Day:
+              value = new Date(value).getTime();
+              this.expiryDate = Math.ceil(
+                (value - now) / (24 * 60 * 60 * 1000)
+              );
+              break;
+            case MISAEnum.Date.Week:
+              value = new Date(value).getTime();
+              this.expiryDate = Math.ceil(
+                (value - now) / (7 * 24 * 60 * 60 * 1000)
+              );
+              break;
+            case MISAEnum.Date.Month:
+              value = new Date(value).getTime();
+              this.expiryDate = Math.ceil(
+                (value - now) / (30 * 24 * 60 * 60 * 1000)
+              );
+              break;
+            case MISAEnum.Date.Year:
+              value = new Date(value).getTime();
+              this.expiryDate = Math.ceil(
+                (value - now) / (365 * 24 * 60 * 60 * 1000)
+              );
+              break;
+          }
         }
       } catch (error) {
         console.log(error);
@@ -449,14 +571,14 @@ export default {
         if (this.material) {
           this.material.expiryDate = new Date();
           switch (this.expiryTime) {
-            case "Ngày":
+            case MISAEnum.Date.Day:
               this.material.expiryDate = new Date(
                 this.material.expiryDate.setDate(
                   this.material.expiryDate.getDate() + parseInt(this.expiryDate)
                 )
               );
               break;
-            case "Tuần":
+            case MISAEnum.Date.Week:
               this.material.expiryDate = new Date(
                 this.material.expiryDate.setDate(
                   this.material.expiryDate.getDate() +
@@ -464,7 +586,7 @@ export default {
                 )
               );
               break;
-            case "Tháng":
+            case MISAEnum.Date.Month:
               this.material.expiryDate = new Date(
                 this.material.expiryDate.setMonth(
                   this.material.expiryDate.getMonth() +
@@ -472,7 +594,7 @@ export default {
                 )
               );
               break;
-            case "Năm":
+            case MISAEnum.Date.Year:
               this.material.expiryDate = new Date(
                 this.material.expiryDate.setFullYear(
                   this.material.expiryDate.getFullYear() +
@@ -494,14 +616,18 @@ export default {
      */
     checkDuplicateUnit(i) {
       try {
+        this.isDuplicateUnit = false;
+        this.isDuplicateUnitChange = false;
         if (this.material) {
           var item = this.material.conversionUnits;
           if (item.length > 0) {
             for (let index = 0; index < item.length; index++) {
               if (
                 item[index].conversionUnitID != 0 &&
-                item[index].conversionUnitID == this.material.unitID
+                item[index].conversionUnitID == this.material.unitID &&
+                item[index].action != MISAEnum.ActionType.Delete
               ) {
+                this.isDuplicateUnit = true;
                 this.isShowPopUp = true;
                 this.popUpType = MISAEnum.PopUpType.Error;
                 this.message = [];
@@ -513,13 +639,15 @@ export default {
                 if (index == i) continue;
                 if (
                   item[index].conversionUnitID != 0 &&
-                  item[index].conversionUnitID == item[i].conversionUnitID
+                  item[index].conversionUnitID == item[i].conversionUnitID &&
+                  item[index].action != MISAEnum.ActionType.Delete
                 ) {
+                  this.isDuplicateUnitChange = true;
                   this.isShowPopUp = true;
                   this.popUpType = MISAEnum.PopUpType.Error;
                   this.message = [];
                   this.message.push({
-                    msg:Resources.UNIT_CHANGE_DUPLICATE,
+                    msg: Resources.UNIT_CHANGE_DUPLICATE,
                   });
                 }
               }
@@ -537,17 +665,21 @@ export default {
      */
     btnAddRowOnClick() {
       try {
+        if (!this.material.conversionUnits) this.material.conversionUnits = [];
         this.material.conversionUnits.push({
           conversionUnitID: 0,
           conversionUnitName: "",
           calculation: 1,
-          conversionRate: 1,
+          conversionRate: "1,00",
+          action: MISAEnum.ActionType.Insert,
           description: "",
           createdBy: "admin",
           createdDate: new Date(),
           modifiedBy: "admin",
           modifiedDate: new Date(),
         });
+        // var length = this.material.conversionUnits.length;
+        // this.$refs.UnitChange[length-1].$refs.input.focus();
       } catch (error) {
         console.log(error);
       }
@@ -559,44 +691,45 @@ export default {
      */
     btnDeleteRowOnClick() {
       try {
-        if (
-          this.material &&
-          this.material.conversionUnits &&
-          this.material.conversionUnits[
-            this.material.conversionUnits.length - 1
-          ].conversionUnitID != 0 &&
-          this.ActionType == MISAEnum.ActionType.Update
-        ) {
-          this.isLoad = true;
-          axios
-            .delete(
-              Resources.DOMAIN +
-                Resources.API_VER +
-                Resources.CONVERSION_UNIT_PATH +
-                `/${this.MaterialID}&${
-                  this.material.conversionUnits[
-                    this.material.conversionUnits.length - 1
-                  ].conversionUnitID
-                }`
-            )
-            .then((response) => {
-              if (response.data) {
-                this.isLoad = false;
-              }
-            })
-            .catch((error) => {
-              console.log(error.response);
-            });
+        var length = this.material.conversionUnits.length;
+        if (this.material.conversionUnits[length - 1].oldUnitID) {
+          this.deleteIndex++;
+          this.material.conversionUnits[length - this.deleteIndex].action =
+            MISAEnum.ActionType.Delete;
+        } else {
+          this.material.conversionUnits.pop();
         }
-        this.material.conversionUnits.pop();
       } catch (error) {
         console.log(error);
       }
     },
+    /**
+     * Hàm validate giá trị
+     * AUTHOR: YENVTH
+     * CreatedDate:04/10/2022
+     */
+    getValue(value) {
+      try {
+        if (this.isSave) {
+          var input = this.$refs[value];
+          if (!input.value) {
+            input.classList.add("border-red");
+          } else {
+            input.classList.remove("border-red");
+          }
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    },
+
+    /**
+     *
+     */
     getCode() {
       if (
         this.ActionType == MISAEnum.ActionType.Insert ||
-        this.material.materialName != this.oldInput
+        this.ActionType == MISAEnum.ActionType.Duplicate
       ) {
         this.getNewCode();
       }
@@ -610,43 +743,29 @@ export default {
       try {
         if (this.material && this.material.materialName) {
           if (this.$refs.MaterialName)
-            this.$refs.MaterialName.classList.remove(Resources.BORDER_CLASS);
-          this.isLoad = true;
-          axios
-            .get(
-              Resources.DOMAIN +
-                Resources.API_VER +
-                Resources.MATERIAL_PATH +
-                `/new-code?MatterialName=${this.material.materialName}`
-            )
-            .then((response) => {
-              if (response) {
-                this.material.materialCode = response.data;
-                if (this.$refs.MaterialCode)
-                  this.$refs.MaterialCode.classList.remove(Resources.BORDER_CLASS);
+            axios
+              .get(
+                Constant.DOMAIN +
+                Constant.API_VER +
+                Constant.MATERIAL_PATH +
+                  `/new-code?MatterialName=${this.material.materialName}`
+              )
+              .then((response) => {
+                if (response) {
+                  this.material.materialCode = response.data;
+                  this.$refs.MaterialCode.classList.remove("border-red");
+                }
+              })
+              .catch((error) => {
+                console.log(error.response);
                 this.isLoad = false;
-              }
-            })
-            .catch((error) => {
-              console.log(error.response);
-              this.isLoad = false;
-              this.isShowPopUp = true;
-              this.popUpType = MISAEnum.PopUpType.Error;
-              this.message = [];
-              this.message.push({
-                msg: Resources.UNDEFINED_ERROR,
+                this.isShowPopUp = true;
+                this.popUpType = MISAEnum.PopUpType.Error;
+                this.message = [];
+                this.message.push({
+                  msg: Resources.UNDEFINED_ERROR,
+                });
               });
-            });
-        } else {
-          if (this.$refs.MaterialName && this.$refs.MaterialCode) {
-            if (this.material.materialName) {
-              this.$refs.MaterialName.classList.remove(Resources.BORDER_CLASS);
-              this.$refs.MaterialCode.classList.remove(Resources.BORDER_CLASS);
-            } else {
-              this.$refs.MaterialName.classList.add(Resources.BORDER_CLASS);
-              this.$refs.MaterialCode.classList.add(Resources.BORDER_CLASS);
-            }
-          }
         }
       } catch (error) {
         console.log(error);
@@ -659,12 +778,12 @@ export default {
      */
     getAllUnit(isAdd) {
       axios
-        .get(Resources.DOMAIN + Resources.API_VER + Resources.UNIT_PATH)
+        .get(Constant.DOMAIN + Constant.API_VER + Constant.UNIT_PATH)
         .then((response) => {
           if (response && response.data) {
             this.unitList = response.data;
-            this.material.unitID = response.data[0].unitID;
             if (isAdd) {
+              this.material.unitID = response.data[0].unitID;
               this.material.unitName = response.data[0].unitName;
               if (
                 this.$refs &&
@@ -694,12 +813,12 @@ export default {
      */
     getAllStock(isAdd) {
       axios
-        .get(Resources.DOMAIN + Resources.API_VER + Resources.STOCK_PATH)
+        .get(Constant.DOMAIN + Constant.API_VER + Constant.STOCK_PATH)
         .then((response) => {
           if (response && response.data) {
             this.stockList = response.data;
-            this.material.stockID = response.data[0].stockID;
             if (isAdd) {
+              this.material.stockID = response.data[0].stockID;
               this.material.stockName = response.data[0].stockName;
               if (
                 this.$refs &&
@@ -731,24 +850,45 @@ export default {
       this.isLoad = true;
       axios
         .get(
-          Resources.DOMAIN +
-            Resources.API_VER +
-            Resources.MATERIAL_PATH +
+          Constant.DOMAIN +
+          Constant.API_VER +
+          Constant.MATERIAL_PATH +
             `/${this.MaterialID}`
         )
         .then((response) => {
           if (response && response.data) {
             this.isLoad = false;
+          
             this.material = response.data;
-            this.oldInput = response.data.materialName;
+            this.formatRate(response.data.inventoryNumber);
+            if (
+              this.material &&
+              this.material.conversionUnits &&
+              response.data.conversionUnits
+            ) {
+              if (response.data.conversionUnits.length > 0) {
+                for (
+                  let index = 0;
+                  index < response.data.conversionUnits.length;
+                  index++
+                ) {
+                  this.formatRate(
+                    response.data.conversionUnits[index].conversionRate,
+                    index
+                  );
+                }
+              }
+            }
             this.getExpiryDate(response.data.expiryDate);
             if (this.ActionType == MISAEnum.ActionType.Duplicate) {
               this.getNewCode();
             }
           }
-        })
+        }).then(() => { this.isChange = false;}
+
+        )
         .catch((error) => {
-          console.log(error.response);
+          console.log(error);
           this.isLoad = false;
           this.isShowPopUp = true;
           this.popUpType = MISAEnum.PopUpType.Error;
@@ -768,12 +908,12 @@ export default {
         this.material = {
           materialCode: "",
           materialName: "",
-          expiryDate: "",
+          expiryDate: null,
           unitID: "",
           unitName: "",
           stockID: null,
           stockName: null,
-          inventoryNumber: 0,
+          inventoryNumber: "0,00",
           description: "",
           status: 1,
           createdBy: "admin",
@@ -782,7 +922,7 @@ export default {
           modifiedDate: new Date(),
           conversionUnits: [],
         };
-        this.expiryDate = 0;
+        this.expiryDate = null;
       } catch (error) {
         console.log(error);
       }
@@ -797,22 +937,34 @@ export default {
         this.message = [];
         if (this.material) {
           if (this.material.materialName == "") {
+            this.$refs.MaterialName.classList.add("border-red");
             this.message.push({
               msg: Resources.MATERIAL_NAME_ERROR,
-              tittle: Resources.REF_MATERIAL_NAME,
+              tittle: Constant.REF_MATERIAL_NAME,
             });
           }
           if (!this.material.materialCode) {
+            this.$refs.MaterialCode.classList.add("border-red");
             this.message.push({
               msg: Resources.MATERIALE_CODE_ERROR,
-              tittle: Resources.REF_MATERIAL_CODE,
+              tittle: Constant.REF_MATERIAL_CODE,
             });
           }
           if (!this.material.unitName) {
             this.$refs.Unit.validate(true);
             this.message.push({
               msg: Resources.UNIT_ERROR,
-              tittle: Resources.REF_UNIT,
+              tittle: Constant.REF_UNIT,
+            });
+          }
+          if (this.isDuplicateUnit) {
+            this.message.push({
+              msg: Resources.UNIT_CHANGE_ERROR,
+            });
+          }
+          if (this.isDuplicateUnitChange) {
+            this.message.push({
+              msg: Resources.UNIT_CHANGE_DUPLICATE,
             });
           }
         }
@@ -827,7 +979,13 @@ export default {
      */
     saveOnClick(isContinue) {
       try {
+        this.isSave = true;
         this.validate();
+        this.material.inventoryNumber = 
+          this.material.inventoryNumber
+            .toString()
+            .replaceAll(".", "").replace(",",".")
+        ;
         if (this.material && this.material.conversionUnits) {
           if (this.material.conversionUnits.length > 0) {
             for (
@@ -835,6 +993,12 @@ export default {
               index < this.material.conversionUnits.length;
               index++
             ) {
+              this.material.conversionUnits[index].conversionRate = parseFloat(
+                this.material.conversionUnits[index].conversionRate
+                  .toString()
+                  .replaceAll(".", "")
+                  .replace(",", ".")
+              );
               if (this.material.conversionUnits[index].conversionUnitID == 0) {
                 this.material.conversionUnits.splice(index, 1);
                 index--;
@@ -868,7 +1032,7 @@ export default {
       this.material.modifiedDate = new Date();
       axios
         .post(
-          Resources.DOMAIN + Resources.API_VER + Resources.MATERIAL_PATH,
+          Constant.DOMAIN + Constant.API_VER + Constant.MATERIAL_PATH,
           this.material
         )
         .then((response) => {
@@ -876,13 +1040,23 @@ export default {
             if (isContinue) {
               this.isLoad = false;
               this.resetMaterial();
-              this.$emit(Resources.EMIT_LOAD_DATA, this.pageSize, 1, this.materialFillter);
+              this.$emit(
+                Constant.EMIT_LOAD_DATA,
+                this.pageSize,
+                1,
+                this.materialFillter
+              );
             } else {
               this.showForm(false);
-              this.$emit(Resources.EMIT_LOAD_DATA, this.pageSize, 1, this.materialFillter);
+              this.$emit(
+                Constant.EMIT_LOAD_DATA,
+                this.pageSize,
+                1,
+                this.materialFillter
+              );
             }
             this.$emit(
-              Resources.EMIT_SHOW_ALERT,
+              Constant.EMIT_SHOW_ALERT,
               true,
               Resources.INSERT_SUCCESS,
               MISAEnum.Status.Success
@@ -891,23 +1065,21 @@ export default {
         })
         .catch((error) => {
           console.log(error);
+          this.isLoad = false;
+          this.isShowPopUp = true;
+          this.popUpType = MISAEnum.PopUpType.Error;
+          this.message = [];
           if (error.response.data.errorCode == 3) {
-            this.isLoad = false;
-            this.isShowPopUp = true;
-            this.popUpType = MISAEnum.PopUpType.Error;
-            this.message = [];
+            if (this.$refs.MaterialCode)
+              this.$refs.MaterialCode.classList.add("border-red");
             this.message.push({
               msg: ` Mã nhân viên << ${this.material.materialCode} >> đã tồn tại trong hệ thống!`,
-              tittle:Resources.REF_MATERIAL_CODE
+              tittle: Constant.REF_MATERIAL_CODE,
             });
-           if(this.$refs.MaterialCode) this.$refs.MaterialCode.classList.add("border-red");
           } else {
-            this.isLoad = false;
-            this.isShowPopUp = true;
-            this.popUpType = MISAEnum.PopUpType.Error;
-            this.message = [];
             this.message.push({
-              msg: error.response.data.userMsg,
+              msg: "Có lỗi xảy ra! Vui lòng liên hệ MISA!",
+              tittle: Constant.REF_MATERIAL_CODE,
             });
           }
         });
@@ -922,9 +1094,9 @@ export default {
       this.material.modifiedDate = new Date();
       axios
         .put(
-          Resources.DOMAIN +
-            Resources.API_VER +
-            Resources.MATERIAL_PATH +
+          Constant.DOMAIN +
+          Constant.API_VER +
+          Constant.MATERIAL_PATH +
             `/${this.MaterialID}`,
           this.material
         )
@@ -932,14 +1104,26 @@ export default {
           if (response.data) {
             this.isLoad = false;
             if (isContinue) {
+              this.$emit(Constant.EMIT_UPDATE_ACTION_TYPE, MISAEnum.ActionType.Insert);
+              this.$emit(Constant.EMIT_UPDATE_TITLE, Resources.ADD_TITLE);
               this.resetMaterial();
-              this.$emit(Resources.EMIT_LOAD_DATA, this.pageSize, 1, this.materialFillter);
+              this.$emit(
+                Constant.EMIT_LOAD_DATA,
+                this.pageSize,
+                1,
+                this.materialFillter
+              );
             } else {
               this.showForm(false);
-              this.$emit(Resources.EMIT_LOAD_DATA, this.pageSize, 1, this.materialFillter);
+              this.$emit(
+                Constant.EMIT_LOAD_DATA,
+                this.pageSize,
+                1,
+                this.materialFillter
+              );
             }
             this.$emit(
-             Resources.EMIT_SHOW_ALERT,
+              Constant.EMIT_SHOW_ALERT,
               true,
               Resources.UPDATE_SUCCESS,
               MISAEnum.Status.Success
@@ -948,16 +1132,55 @@ export default {
         })
         .catch((error) => {
           console.log(error);
+          this.isLoad = false;
+          this.isShowPopUp = true;
+          this.popUpType = MISAEnum.PopUpType.Error;
+          this.message = [];
           if (error.response.data.errorCode == 3) {
-            this.isLoad = false;
-            this.isShowPopUp = true;
-            this.popUpType = MISAEnum.PopUpType.Error;
-            this.message = [];
+            if (this.$refs.MaterialCode)
+              this.$refs.MaterialCode.classList.add("border-red");
             this.message.push({
               msg: ` Mã nhân viên << ${this.material.materialCode} >> đã tồn tại trong hệ thống!`,
+              tittle: Constant.REF_MATERIAL_CODE,
+            });
+          } else {
+            this.message.push({
+              msg: Resources.UNDEFINED_ERROR,
+              tittle: Constant.REF_MATERIAL_CODE,
             });
           }
         });
+    },
+
+    /**
+     *truyền giá trị cho alert
+     * @param {*} isShow: ẩn hiển alert
+     * @param {*} msg: thông báo
+     * @param {*} type:loại alert cần hiển thị
+     *  CreatedDate:28/09/2022
+     */
+    setEmitAlert(isShow, msg, type) {
+      this.$emit(Constant.EMIT_SHOW_ALERT, isShow, msg, type);
+    },
+
+    /**
+     *kiểm tra input đầu vào là số
+     @param evt: giá trị event
+     CreatedDate:28/09/2022
+     */
+    isNumber(evt) {
+      try {
+         evt = evt ? evt : window.event;
+      var charCode = evt.which ? evt.which : evt.keyCode;
+      if (charCode > 31 && (charCode < 48 || charCode > 57)) {
+        evt.preventDefault();
+      } else {
+        return true;
+      }
+      } catch (error) {
+        console.log(error);
+      }
+     
     },
   },
   created() {

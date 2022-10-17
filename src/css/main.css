@@ -30,16 +30,19 @@ body {
 .col__width_34{
     width: 32%;
     margin-right: 8px;
-    height: 30px;
+    height: 28px;
 }
 .col_width_70{
     width: 70%;
 }
+.col_width_45{
+    width: 45%;
+}
 .col_width_100{
     width: 100%;
 }
-.col_height_30{
-    height: 30px;
+.col__height--28{
+    height: 28px;
 }
 .border-red {
     border: 1px solid #f00!important;

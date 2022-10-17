@@ -1,14 +1,14 @@
 .content__table{
     position: relative;
-height: 84%;
+height: 85%;
 overflow: auto;
 }
 .table__option{
     display: flex;
    height: fit-content;
-    border: 1px solid #ccc;
+    outline: 1px solid #ccc;
     border-bottom: none;
-    padding:10px 24px;
+    padding:2px 4px;
     background-color: #e0e0e0;
     position: sticky;
     top: 0;
@@ -23,16 +23,17 @@ overflow: auto;
 }
 .table__data tr:hover{
     background-color: #D7e9f4;
+    cursor: pointer;
 }
 .table__data tr:first-child{
     background-color: #e0e0e0;
     position: sticky;
-    top: 32px;
+    top: 26px;
     left: 0;
 }
 .table__data td,th{
-    height: 28px;
-    padding: 8px;
+    height: 15px;
+    padding: 5px 10px;
     border: 1px solid #ccc;
     font-weight: 500;
 }
@@ -40,12 +41,12 @@ overflow: auto;
     position: relative;
     display: flex;
     margin-top: 6px;
-    height: 28px;
+    height: 24px;
 }
 .input__search{
     width: 100%;
     border: 1px solid #ccc;
-    padding: 10px;
+    padding: 3px;
 }
 .input__search:focus-visible{
     outline: none;

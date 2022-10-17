@@ -26,13 +26,13 @@
           </div>
         </div></div>
         <div class="popup__footer">
-          <button ref="firstButton" v-if="PopUpType == error" class="btn" @click="btnCloseOnClick">
+          <button ref="firstButton" v-if="PopUpType == error" class="btn col__height--28" @click="btnCloseOnClick">
              Đóng
             </button>
           <div class="footer__right" v-else>
-            <button  ref="firstButton" class="btn" style="margin-right: 8px" @click="onBtnYesClick">Có</button>
-            <button class="btn" style="margin-right: 8px" @click="onBtnNoClick">Không</button>
-            <button  v-if="PopUpType == confirm" class="btn" @click="btnCloseOnClick">
+            <button  ref="firstButton" class="btn col__height--28" style="margin-right: 8px" @click="onBtnYesClick"  @keydown.shift.tab.prevent.exact="repeatTabIndex('cancel')">Có</button>
+            <button ref="secondButton" class="btn col__height--28" style="margin-right: 8px" @click="onBtnNoClick">Không</button>
+            <button ref="cancel"  v-if="PopUpType == confirm" class="btn col__height--28" @click="btnCloseOnClick"   @keydown.tab.prevent="repeatTabIndex('firstButton')">
              Hủy
             </button>
           </div>
@@ -46,7 +46,7 @@
 </style>
   <script>
 import { MISAEnum } from '@/js/Enum';
-import { Resources } from '@/js/Resources';
+import { Constant } from '@/js/Constant';
 export default {
   name:"ThePopUp",
   props:["message", "PopUpType","closePopUp"],
@@ -58,6 +58,14 @@ export default {
     }
   },
   methods:{
+      /**
+     * quay lại tab index
+     * AUTHOR: YENVTH
+     * CreatedDate: 08/10/2022
+     */
+     repeatTabIndex(value) {
+      this.$refs[value].focus();
+    },
      /**
      *Hàm đóng popup
      * AUTHOR: YENVTH
@@ -66,7 +74,7 @@ export default {
     btnCloseOnClick(){
       
       if(this.PopUpType == this.error){
-         this.$emit(Resources.EMIT_FOCUS);
+         this.$emit(Constant.EMIT_FOCUS);
       }
         this.closePopUp(false); 
     },
@@ -77,7 +85,7 @@ export default {
      */
     onBtnYesClick(){
       this.closePopUp(false);
-     this.$emit(Resources.EMIT_YES_CLICK);
+     this.$emit(Constant.EMIT_YES_CLICK);
     },
      /**
      *Hàm bắt sự kiện khi click  "No"
@@ -86,7 +94,7 @@ export default {
      */
     onBtnNoClick(){
       this.closePopUp(false);
-      this.$emit(Resources.EMIT_NO_CLICK);
+      this.$emit(Constant.EMIT_NO_CLICK);
     }
   },
   mounted(){

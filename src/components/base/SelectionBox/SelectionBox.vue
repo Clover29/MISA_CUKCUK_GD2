@@ -1,7 +1,7 @@
 <template>
   <div class="selectionbox" :class="div_class">
     <OnClickOutside @trigger="onClickOutside">
-      <button class="btn" @click="showDropDown($event)" v-if="isButtonShow">
+      <button class="btn" @click="showDropDown()" v-if="isButtonShow">
         {{ fillterText }}
       </button>
     </OnClickOutside>
@@ -15,7 +15,7 @@
         <div
           class="icon icon-16 icon__dropdown"
           :class="icon_class"
-          @click="showDropDown($event)"
+          @click="showDropDown()"
         ></div>
       </OnClickOutside>
     </div>
@@ -40,7 +40,7 @@
 <script>
 import { MISAEnum } from "../../../js/Enum.js";
 import { OnClickOutside } from "@vueuse/components";
-import { Resources } from "@/js/Resources";
+import { Constant } from "@/js/Constant";
 export default {
   emits: ["PageSize", "Status", "fillter"],
   components: { OnClickOutside },
@@ -107,23 +107,23 @@ export default {
         switch (this.optionType) {
           case MISAEnum.OptionType.Paging:
             this.optionValue = data.value;
-            this.$emit(Resources.EMIT_PAGESIZE, data.value);
+            this.$emit(Constant.EMIT_PAGESIZE, data.value);
             break;
           case MISAEnum.OptionType.Status:
             this.optionValue = data.text;
-            this.$emit(Resources.EMIT_STATUS, data.value);
+            this.$emit(Constant.EMIT_STATUS, data.value);
             break;
           case MISAEnum.OptionType.Fillter:
             this.fillterText = data.value;
-            this.$emit(Resources.EMIT_FILLTER, data.value);
+            this.$emit(Constant.EMIT_FILLTER, data.value);
             break;
           case MISAEnum.OptionType.Calculation:
             this.optionValue = data.value;
-            this.$emit(Resources.EMIT_UPDATE_OPTIONID, data.id);
+            this.$emit(Constant.EMIT_UPDATE_OPTIONID, data.id);
             break;
           default:
-            this.$emit(Resources.EMIT_UPDATE_VALUE, data.text);
-            this.$emit(Resources.EMIT_FORMATDATE);
+            this.$emit(Constant.EMIT_UPDATE_VALUE, data.text);
+            this.$emit(Constant.EMIT_FORMATDATE);
             this.optionValue = data.text;
             break;
         }

@@ -55,10 +55,14 @@
     color: #E04742;
     margin-right: 8px;
 }
+.icon__dropdown--header{
+    position: relative;
+    top: 3px;
+}
 .icon__dropdown{
     position: absolute;
     right: 7px;
-    top: 5px;
+    top: 3px;
     background-position: -560px -357px;
     cursor: pointer;
 }

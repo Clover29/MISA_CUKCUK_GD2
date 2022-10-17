@@ -29,14 +29,14 @@
           </div>
         </div>
         <div class="dialog__footer">
-          <button class="btn">
+          <button class="btn col__height--28">
             <i class="fa-solid fa-circle-question icon__add"></i>Giúp
           </button>
           <div class="footer__right">
-            <button class="btn" style="margin-right: 8px" @click="saveOnClick">
+            <button class="btn col__height--28" style="margin-right: 8px" @click="saveOnClick">
               <i class="fa-regular fa-floppy-disk icon__add"></i>Cất
             </button>
-            <button class="btn">
+            <button class="btn col__height--28" @click="btnCloseOnClick">
               <i class="fa-solid fa-ban icon__delete"></i>Hủy
             </button>
           </div>
@@ -57,6 +57,7 @@
 import axios from "axios";
 import { MISAEnum } from "@/js/Enum";
 import { Resources } from "@/js/Resources";
+import { Constant } from "@/js/Constant";
 import ThePopUp from "../PopUp/ThePopUp.vue";
 import LoadData from "../Loading/LoadData.vue";
 export default {
@@ -102,8 +103,13 @@ export default {
      * CreatedDate:03/10/2022
      */
     btnCloseOnClick() {
-      this.$emit(Resources.EMIT_UPDATE_ISSHOW, false);
+      this.$emit(Constant.EMIT_UPDATE_ISSHOW, false);
     },
+
+    /**
+     * Đóng thông báo
+     * @param { * } isShow 
+     */
     closeNotice(isShow) {
       this.isShowPopUp = isShow;
     },
@@ -121,13 +127,13 @@ export default {
               this.type == this.unitType
                 ? Resources.UNIT_ERROR
                 : Resources.STOCK_CODE_ERROR,
-            tittle: Resources.REF_FISRT_INPUT,
+            tittle: Constant.REF_FISRT_INPUT,
           });
         }
         if (this.type == this.stockType && this.secondValue == "") {
           this.message.push({
             msg: Resources.STOCK_NAME_ERROR,
-            tittle: Resources.REF_STOCK_NAME,
+            tittle: Constant.REF_STOCK_NAME,
           });
         }
       } catch (error) {
@@ -167,13 +173,16 @@ export default {
       this.isLoad = true;
       axios
         .post(
-          Resources.DOMAIN + Resources.API_VER + Resources.UNIT_PATH,
+          Constant.DOMAIN + Constant.API_VER + Constant.UNIT_PATH,
           this.unit
         )
         .then((response) => {
           if (response.data) {
-            this.$emit(Resources.EMIT_UPDATE_ISSHOW, false);
-            this.$emit(Resources.EMIT_LOAD_UNIT,true);
+            this.$emit("getEmitShow", true,
+              Resources.INSERT_UNIT_SUCCESS,
+              MISAEnum.Status.Success);
+            this.$emit(Constant.EMIT_UPDATE_ISSHOW, false);
+            this.$emit(Constant.EMIT_LOAD_UNIT,true);
           }
         })
         .catch((error) => {
@@ -211,13 +220,17 @@ export default {
       this.isLoad = true;
       axios
         .post(
-          Resources.DOMAIN + Resources.API_VER + Resources.STOCK_PATH,
+          Constant.DOMAIN + Constant.API_VER + Constant.STOCK_PATH,
           this.stock
         )
         .then((response) => {
-          if (response.data) {
-            this.$emit(Resources.EMIT_UPDATE_ISSHOW, false);
-            this.$emit(Resources.EMIT_LOAD_STOCK,true);
+          if (response.data) { 
+            this.$emit("getEmitShow", true,
+              Resources.INSERT_STOCK_SUCCESS,
+              MISAEnum.Status.Success);
+            this.$emit(Constant.EMIT_UPDATE_ISSHOW, false);
+            this.$emit(Constant.EMIT_LOAD_STOCK,true);
+           
           }
         })
         .catch((error) => {
@@ -241,6 +254,7 @@ export default {
           }
         });
     },
+
   },
 };
 </script>

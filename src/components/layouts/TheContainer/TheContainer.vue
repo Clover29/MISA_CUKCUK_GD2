@@ -8,26 +8,46 @@
   <div class="container">
     <div class="content__tittle">
       <div class="title">Nguyên vật liệu</div>
-      <button class="btn">
+      <button class="btn col__height--28">
         <i class="fa-solid fa-bullhorn icon__horn"></i>Phản hồi
       </button>
     </div>
-    <div class="content__table">
+    <div class="content__table" ref="scrollContainer">
       <LoadingVue v-show="isLoad" />
       <div class="table__option">
-        <div class="label color__black" @click="showForm(true)">
+        <div
+          class="label color__black"
+          @click="showForm(true)"
+          title="Thêm (Insert)"
+        >
           <i class="fa-solid fa-file-circle-plus icon__add"></i>Thêm
         </div>
-        <div class="label color__black" @click="onDuplicateClick()">
+        <div
+          class="label color__black"
+          @click="onDuplicateClick"
+          title="Nhân Bản (Ctrl + U)"
+        >
           <i class="fa-regular fa-copy icon__duplicate"></i>Nhân Bản
         </div>
-        <div class="label color__black" @click="onUpdateClick()">
+        <div
+          class="label color__black"
+          @click="onUpdateClick"
+          title="Sửa (Ctrl + D)"
+        >
           <i class="fa-solid fa-pen-to-square icon__add"></i>Sửa
         </div>
-        <div class="label color__black" @click="onDeleteClick(true)">
+        <div
+          class="label color__black"
+          @click="onDeleteClick(true)"
+          title="Xóa (Delete)"
+        >
           <i class="fa-solid fa-xmark icon__delete"></i>Xóa
         </div>
-        <div class="label color__black" @click="onRefreshClick">
+        <div
+          class="label color__black"
+          @click="onRefreshClick"
+          title="Nạp (Ctrl + R)"
+        >
           <i class="fa-solid fa-arrows-rotate icon__add"></i>Nạp
         </div>
       </div>
@@ -50,6 +70,7 @@
                 v-model="MaterialCode"
                 type="text"
                 class="input__search"
+                @focus="removeEvent"
                 @keydown.enter="getFillterOption('MaterialCode')"
               />
             </div>
@@ -71,6 +92,7 @@
                 type="text"
                 class="input__search"
                 v-model="MaterialName"
+                @focus="removeEvent"
                 @keydown.enter="getFillterOption('MaterialName')"
               />
             </div>
@@ -92,6 +114,7 @@
                 type="text"
                 class="input__search"
                 v-model="Feature"
+                @focus="removeEvent"
                 @keydown.enter="getFillterOption('Feature')"
               />
             </div>
@@ -113,6 +136,7 @@
                 type="text"
                 class="input__search"
                 v-model="UnitName"
+                @focus="removeEvent"
                 @keydown.enter="getFillterOption('UnitName')"
               />
             </div>
@@ -134,6 +158,7 @@
                 type="text"
                 class="input__search"
                 v-model="CategoryName"
+                @focus="removeEvent"
                 @keydown.enter="getFillterOption('CategoryName')"
               />
             </div>
@@ -155,6 +180,7 @@
                 type="text"
                 class="input__search"
                 v-model="Description"
+                @focus="removeEvent"
                 @keydown.enter="getFillterOption('Description')"
               />
             </div>
@@ -182,7 +208,7 @@
           :class="{ row__selected: MaterialID == item.materialID }"
         >
           <td>{{ item.materialCode }}</td>
-          <td>{{ item.materialName }}</td>
+          <td class="text__elipsis" style="width: 200px;">{{ item.materialName }}</td>
           <td>{{ item.feature }}</td>
           <td>{{ item.unitName }}</td>
           <td>{{ item.categoryName }}</td>
@@ -203,20 +229,22 @@
       ref="MaterialPaging"
       :totalRecord="totalPageRecord"
       @LoadData="loadData"
-      :totalPage="totalPage"
+      :TotalPage="totalPage"
       :materialFillter="materialFillter"
       v-model:PageNumber="currentPage"
       v-model:pageSize="pageSize"
+      @removeEvent="removeEvent"
     />
     <MaterialForm
-    ref="MaterialForm"
+      ref="MaterialForm"
       v-if="isShowForm"
-      :Title="formTitle"
+      v-model:Title="formTitle"
       :showForm="showForm"
       @LoadData="loadData"
       :MaterialID="MaterialID"
-      :ActionType="actionType"
+      v-model:ActionType="actionType"
       @showAlert="showAlert"
+      @AddEvent="addEvent"
     />
   </div>
   <PopUp
@@ -234,6 +262,7 @@
 import axios from "axios";
 import { MISAEnum } from "../../../js/Enum.js";
 import { Resources } from "../../../js/Resources.js";
+import { Constant } from "../../../js/Constant.js";
 import MaterialForm from "../../base/Form/MaterialForm.vue";
 import MaterialPaging from "../../base/Paging/MaterialPaging.vue";
 import SelectionBox from "../../base/SelectionBox/SelectionBox.vue";
@@ -252,12 +281,14 @@ export default {
   },
   data() {
     return {
-      formTitle:"",//tittle form tương ứng
+      isFocus:false,//kiểm tra thẻ input có đc focus hay không
+      index: 0, //vị trí của dòng được chọn trong bảng
+      formTitle: "", //tittle form tương ứng
       isShowAlert: false, // kiểm tra trạng thái của alert có được hiển thị hay không
       alertMsg: "", //thông tin hiển thị trên alert
       alertType: "", // quyết định loại alert cần hiển thị
       isLoad: false, // ẩn hiện loading
-      pageSize: 10, // số bản ghi hiển thị trong 1 trang
+      pageSize: 50, // số bản ghi hiển thị trong 1 trang
       message: "", // thông tin của pop up
       popUpType: 0, // loại pop up được hiển thị
       isShowPopUp: false, // ẩn hiện pop up
@@ -329,6 +360,13 @@ export default {
       actionType: 0, // loại chức năng muôn thực hiện
     };
   },
+  watch: {
+    index: function () {
+      if(this.materialList){
+        this.MaterialID = this.materialList[this.index].materialID;
+      }
+    },
+  },
   methods: {
     /**
      * Thông báo hiển thị khi người dùng thực hiện xong 1 thao tác
@@ -361,9 +399,11 @@ export default {
      */
     showForm(isShow) {
       this.isShowForm = isShow;
-      if(this.$refs && this.$refs.MaterialForm ) this.$refs.MaterialForm.pageSize = this.pageSize;
+      if (this.$refs && this.$refs.MaterialForm)
+        this.$refs.MaterialForm.pageSize = this.pageSize;
       this.formTitle = Resources.ADD_TITLE;
       this.actionType = MISAEnum.ActionType.Insert;
+      window.removeEventListener("keydown", this.keyMonitor);
     },
     /**
      *Hàm load danh sách nguyên vật liệu
@@ -372,37 +412,37 @@ export default {
      */
     loadData(pageSize, pageNumber, materialFillter) {
       this.isLoad = true;
-      if(materialFillter){
-          axios
-        .get(
-          Resources.DOMAIN +
-            Resources.API_VER +
-            Resources.MATERIAL_PATH +
-            `/Fillter?MaterialCode=${materialFillter.MaterialCode}&MaterialName=${materialFillter.MaterialName}&Feature=${materialFillter.Feature}&UnitName=${materialFillter.UnitName}&CategoryName=${materialFillter.CategoryName}&Description=${materialFillter.Description}&Status=${materialFillter.Status}&pageSize=${pageSize}&pageNumber=${pageNumber}`
-        )
-        .then((response) => {
-          if (response && response.data && response.data.data) {
-            this.materialList = response.data.data;
-            this.MaterialID = response.data.data[0].materialID;
-            this.material = response.data.data[0];
-            this.totalPage = response.data.totalPage;
-            this.totalPageRecord = response.data.totalRecord;
-            this.currentPage = response.data.currentPage;
+      if (materialFillter) {
+        axios
+          .get(
+            Constant.DOMAIN +
+            Constant.API_VER +
+            Constant.MATERIAL_PATH +
+              `/Fillter?MaterialCode=${materialFillter.MaterialCode}&MaterialName=${materialFillter.MaterialName}&Feature=${materialFillter.Feature}&UnitName=${materialFillter.UnitName}&CategoryName=${materialFillter.CategoryName}&Description=${materialFillter.Description}&Status=${materialFillter.Status}&pageSize=${pageSize}&pageNumber=${pageNumber}`
+          )
+          .then((response) => {
+            if (response && response.data && response.data.data) {
+              this.materialList = response.data.data;
+            if(response.data.data.length > 0)  this.MaterialID = response.data.data[0].materialID;
+              this.material = response.data.data[0];
+              this.totalPage = response.data.totalPage;
+              this.$refs.MaterialPaging.totalPage =  response.data.totalPage;
+              this.totalPageRecord = response.data.totalRecord;
+              this.currentPage = response.data.currentPage;
+              this.isLoad = false;
+            }
+          })
+          .catch((error) => {
+            console.log(error.response);
             this.isLoad = false;
-          }
-        })
-        .catch((error) => {
-          console.log(error.response);
-          this.isLoad = false;
-          this.isShowPopUp = true;
-          this.popUpType = MISAEnum.PopUpType.Error;
-          this.message = [];
-          this.message.push({
-            msg: Resources.UNDEFINED_ERROR,
+            this.isShowPopUp = true;
+            this.popUpType = MISAEnum.PopUpType.Error;
+            this.message = [];
+            this.message.push({
+              msg: Resources.UNDEFINED_ERROR,
+            });
           });
-        });
       }
-    
     },
     /**
      *Hàm set trạng thái
@@ -411,10 +451,10 @@ export default {
      */
     setStatus(data) {
       try {
-        if(this.materialFillter){
-           this.materialFillter.Status = data;
-        this.$refs.MaterialPaging.pageNumber = 1;
-        this.loadData(this.pageSize, 1, this.materialFillter);
+        if (this.materialFillter) {
+          this.materialFillter.Status = data;
+          this.$refs.MaterialPaging.pageNumber = 1;
+          this.loadData(this.pageSize, 1, this.materialFillter);
         }
       } catch (error) {
         console.log(error);
@@ -427,16 +467,19 @@ export default {
      */
     getFillterOption(value) {
       try {
-        if(this.$refs[value] && this.materialFillter ){
-           if (this.$refs[value].fillterText != MISAEnum.FillterOption.StartWidth.value) {
-          this.materialFillter[value] =
-            this.$refs[value].fillterText + this[value];
-        } else {
-          this.materialFillter[value] = Resources.TEXT_ADD + this[value];
-        }
+        if (this.$refs[value] && this.materialFillter) {
+          if (
+            this.$refs[value].fillterText !=
+            MISAEnum.FillterOption.StartWidth.value
+          ) {
+            this.materialFillter[value] =
+              this.$refs[value].fillterText + this[value];
+          } else {
+            this.materialFillter[value] = Constant.TEXT_ADD + this[value];
+          }
         }
         this.currentPage = 1;
-       if(this.$refs.MaterialPaging) this.$refs.MaterialPaging.pageNumber = 1;
+        if (this.$refs.MaterialPaging) this.$refs.MaterialPaging.pageNumber = 1;
         this.loadData(this.pageSize, 1, this.materialFillter);
       } catch (error) {
         console.log(error);
@@ -449,9 +492,9 @@ export default {
      */
     getMaterialSelected(material) {
       try {
-        if(material){
-            this.MaterialID = material.materialID;
-        this.material = material;
+        if (material) {
+          this.MaterialID = material.materialID;
+          this.material = material;
         }
       } catch (error) {
         console.log(error);
@@ -468,6 +511,7 @@ export default {
           this.isShowForm = true;
           this.actionType = MISAEnum.ActionType.Update;
           this.formTitle = Resources.UPDATE_TITLE;
+          window.removeEventListener(Constant.KEY_EVENT, this.keyMonitor);
         }
       } catch (error) {
         console.log(error);
@@ -484,6 +528,7 @@ export default {
           this.isShowForm = true;
           this.actionType = MISAEnum.ActionType.Duplicate;
           this.formTitle = Resources.ADD_TITLE;
+          window.removeEventListener(Constant.KEY_EVENT, this.keyMonitor);
         }
       } catch (error) {
         console.log(error);
@@ -497,13 +542,13 @@ export default {
     deleteMaterial() {
       axios
         .delete(
-          Resources.DOMAIN +
-            Resources.API_VER +
-            Resources.MATERIAL_PATH +
+          Constant.DOMAIN +
+          Constant.API_VER +
+          Constant.MATERIAL_PATH +
             `/${this.MaterialID}`
         )
         .then((response) => {
-          if (response.data == this.MaterialID) {   
+          if (response.data == this.MaterialID) {
             this.showAlert(
               true,
               Resources.DELETE_SUCCESS,
@@ -540,6 +585,11 @@ export default {
         console.log(error);
       }
     },
+     /**
+     *Hàm load lại form
+     * AUTHOR: YENVTH
+     * CreatedDate:03/10/2022
+     */
     onRefreshClick() {
       try {
         this.MaterialCode = "";
@@ -548,8 +598,8 @@ export default {
         this.UnitName = "";
         this.CategoryName = "";
         this.Description = "";
-     if(this.$refs.Status) 
-       this.$refs.Status.optionValue = this.statusOption[0].text;
+        if (this.$refs.Status)
+          this.$refs.Status.optionValue = this.statusOption[0].text;
         this.materialFillter = {
           MaterialCode: "",
           MaterialName: "",
@@ -560,14 +610,82 @@ export default {
           Status: 1,
         };
         this.loadData(this.pageSize, 1, this.materialFillter);
-      if( this.$refs.MaterialPaging)  this.$refs.MaterialPaging.pageNumber = 1;
+        if (this.$refs.MaterialPaging) this.$refs.MaterialPaging.pageNumber = 1;
       } catch (error) {
         console.log(error);
       }
     },
+    /**
+     *set index tương ứng với các phím tương ứng
+     * AUTHOR: YENVTH
+     * CreatedDate:03/10/2022
+     */
+    keyMonitor(event) {
+      try {
+        switch (event.key) {
+          case MISAEnum.KeyBoard.Enter:
+            if (!this.isShowPopUp) this.onUpdateClick();
+            break;
+          case MISAEnum.KeyBoard.ArrowDown:
+            this.index =
+              this.index >= this.materialList.length - 1 ? 0 : this.index + 1;
+            this.setScroll();
+            break;
+          case MISAEnum.KeyBoard.ArrowUp:
+            this.index =
+              this.index <= 0 ? this.materialList.length - 1 : this.index - 1;
+            this.setScroll();
+            break;
+          case MISAEnum.KeyBoard.Insert:
+            this.showForm(true);
+            break;
+          case MISAEnum.KeyBoard.D:
+            event.preventDefault();
+            if (event.ctrlKey) this.onDuplicateClick();
+            break;
+          case MISAEnum.KeyBoard.U:
+            event.preventDefault();
+            if (event.ctrlKey) this.onUpdateClick();
+            break;
+          case MISAEnum.KeyBoard.Delete:
+            this.onDeleteClick(true);
+            break;
+          case MISAEnum.KeyBoard.R:
+            event.preventDefault();
+            if (event.ctrlKey) this.onRefreshClick();
+            break;
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    },
+    /**
+     * set vị trí của thanh cuộn khi kéo lên hoặc kéo xuống
+     * AUTHOR: YENVTH
+     * CreatedDate: 08/08/2022
+     */
+    setScroll() {
+      try {
+        if (this.$refs.scrollContainer) {
+          this.$refs.scrollContainer.scrollTop = 24 * this.index;
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    },
+    addEvent() {
+      window.addEventListener(Constant.KEY_EVENT, this.keyMonitor);
+    },
+    removeEvent() {
+      window.removeEventListener(Constant.KEY_EVENT, this.keyMonitor);
+    },
   },
   created() {
-    this.loadData(10, 1, this.materialFillter);
+    this.loadData(50, 1, this.materialFillter);
+    this.addEvent();
+  },
+  beforeUnmount() {
+    this.removeEvent();
   },
 };
 </script>

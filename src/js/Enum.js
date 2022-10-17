@@ -1,4 +1,7 @@
 export const MISAEnum = {
+    /**
+     * 
+     */
     OptionType: {
         Paging : 1,
         Status: 2,
@@ -8,7 +11,8 @@ export const MISAEnum = {
     ActionType:{
         Insert: 1,
         Update: 2,
-        Duplicate: 3,
+        Delete:3, 
+         Duplicate: 4,
     },
     PopUpType:{
         Confirm: 1,
@@ -26,7 +30,12 @@ export const MISAEnum = {
     KeyBoard:{
         Enter:"Enter",
         ArrowDown:"ArrowDown",
-        ArrowUp:"ArrowUp"
+        ArrowUp:"ArrowUp",
+        Insert: "Insert",
+        Delete:"Delete",
+        U: "u",
+        R:"r",
+        D: "d"
     },   
     Date:{
         Day:"Ngày",
