@@ -17,7 +17,7 @@
 <style scoped>
 @import url(alert.css);
 </style>
-import  from ''
+
 <script>
 import { MISAEnum } from "@/js/Enum";
 

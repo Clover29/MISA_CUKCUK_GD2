@@ -42,7 +42,7 @@ import { MISAEnum } from "../../../js/Enum.js";
 import { OnClickOutside } from "@vueuse/components";
 import { Constant } from "@/js/Constant";
 export default {
-  emits: ["PageSize", "Status", "fillter"],
+  emits: ["PageSize", "Status", "fillter","update:optionID"],
   components: { OnClickOutside },
   props: [
     "div_class",

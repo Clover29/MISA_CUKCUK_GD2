@@ -361,6 +361,11 @@ export default {
     };
   },
   watch: {
+     /**
+     *lấy id tương ứng với dòng
+     * AUTHOR: YENVTH
+     * CreatedDate:28/09/2022
+     */
     index: function () {
       if(this.materialList){
         this.MaterialID = this.materialList[this.index].materialID;
@@ -403,7 +408,20 @@ export default {
         this.$refs.MaterialForm.pageSize = this.pageSize;
       this.formTitle = Resources.ADD_TITLE;
       this.actionType = MISAEnum.ActionType.Insert;
-      window.removeEventListener("keydown", this.keyMonitor);
+      window.removeEventListener(Constant.KEY_EVENT, this.keyMonitor);
+    },
+       /**
+     *thực hiện show Pop up
+     * AUTHOR: YENVTH
+     * CreatedDate:03/10/2022
+     */
+     settingPopUp(isShow, popUpType, message) {
+      this.isShowPopUp = isShow;
+      this.popUpType = popUpType;
+      this.message = [];
+      this.message.push({
+        msg: message,
+      });
     },
     /**
      *Hàm load danh sách nguyên vật liệu
@@ -435,12 +453,7 @@ export default {
           .catch((error) => {
             console.log(error.response);
             this.isLoad = false;
-            this.isShowPopUp = true;
-            this.popUpType = MISAEnum.PopUpType.Error;
-            this.message = [];
-            this.message.push({
-              msg: Resources.UNDEFINED_ERROR,
-            });
+            this.settingPopUp(true,MISAEnum.PopUpType.Error,Resources.UNDEFINED_ERROR);
           });
       }
     },
@@ -560,12 +573,7 @@ export default {
         .catch((error) => {
           console.log(error.response);
           this.isLoad = false;
-          this.isShowPopUp = true;
-          this.popUpType = MISAEnum.PopUpType.Error;
-          this.message = [];
-          this.message.push({
-            msg: Resources.UNDEFINED_ERROR,
-          });
+          this.settingPopUp(true,MISAEnum.PopUpType.Error,Resources.UNDEFINED_ERROR);
         });
     },
     /**
@@ -673,9 +681,19 @@ export default {
         console.log(error);
       }
     },
+    /**
+     * Bắt sự kiện ấn phím
+     * AUTHOR: YENVTH
+     * CreatedDate: 08/08/2022
+     */
     addEvent() {
       window.addEventListener(Constant.KEY_EVENT, this.keyMonitor);
     },
+     /**
+     * Tắt sự kiện ấn phím
+     * AUTHOR: YENVTH
+     * CreatedDate: 08/08/2022
+     */
     removeEvent() {
       window.removeEventListener(Constant.KEY_EVENT, this.keyMonitor);
     },

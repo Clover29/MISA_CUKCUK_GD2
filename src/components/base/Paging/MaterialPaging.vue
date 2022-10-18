@@ -98,8 +98,14 @@ export default {
     };
   },
   watch: {
+    /**
+     * set lại giá trị bản ghi đầu trang đến bản ghi cuối khi số trang thay đổi
+     * AUTHOR: YENVTH
+     * CreatedDate: 08/10/2022
+     */
     pageNumber: function () {
-      if (this.pageNumber && this.pageNumber > 0 && this.pageNumber <= this.totalPage) { 
+      try {
+         if (this.pageNumber && this.pageNumber > 0 && this.pageNumber <= this.totalPage) { 
          this.firstRecord =
         this.firstRecord > 0 ? (this.pageNumber - 1) * this.pageSize + 1 : 1;
         if(!this.isEnter) this.lastRecord =
@@ -108,9 +114,18 @@ export default {
           : this.firstRecord + this.pageSize - 1;
         if(!this.isEnter) this.loadData();
       }
+      } catch (error) {
+        console.log(error);
+      }
+     
     },
   },
   methods: {
+    /**
+     * lấy ra kích thước bản ghi muốn hiển thị
+     * AUTHOR: YENVTH
+     * CreatedDate: 08/10/2022
+     */
     getPageSize(pageSize) {
       try {
         this.isEnter = true;
@@ -126,6 +141,11 @@ export default {
         console.log(error);
       }
     },
+    /**
+     * load lại dữ liệu theo pagesize và pagenumber tương ứng
+     * AUTHOR: YENVTH
+     * CreatedDate: 08/10/2022
+     */
     loadData() {
       try {
         if(!this.pageNumber.toString().match(/[0-9]+/g) || this.pageNumber < 1) this.pageNumber = 1;
@@ -141,6 +161,11 @@ export default {
         console.log(error);
       }
     },
+    /**
+     * tắt event từ bàn phím khi ấn enter của paging
+     * AUTHOR: YENVTH
+     * CreatedDate: 08/10/2022
+     */
     removeEvent() {
     this.$emit(Constant.EMIT_REMOVE_EVENT);
     },

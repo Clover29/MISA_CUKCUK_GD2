@@ -18,14 +18,24 @@
               >{{ label }}
               <span class="input--required">(*)</span>
             </label>
-            <input ref="FirstInput" class="form__text" type="text" v-model="firstValue" />
+            <input
+              ref="FirstInput"
+              class="form__text"
+              type="text"
+              v-model="firstValue"
+            />
           </div>
           <div class="row" v-if="type == stockType">
             <label class="form__label"
               >Tên kho
               <span class="input--required">(*)</span>
             </label>
-            <input ref="StockName" class="form__text" type="text" v-model="secondValue" />
+            <input
+              ref="StockName"
+              class="form__text"
+              type="text"
+              v-model="secondValue"
+            />
           </div>
         </div>
         <div class="dialog__footer">
@@ -33,7 +43,11 @@
             <i class="fa-solid fa-circle-question icon__add"></i>Giúp
           </button>
           <div class="footer__right">
-            <button class="btn col__height--28" style="margin-right: 8px" @click="saveOnClick">
+            <button
+              class="btn col__height--28"
+              style="margin-right: 8px"
+              @click="saveOnClick"
+            >
               <i class="fa-regular fa-floppy-disk icon__add"></i>Cất
             </button>
             <button class="btn col__height--28" @click="btnCloseOnClick">
@@ -84,12 +98,12 @@ export default {
     };
   },
   methods: {
-     /**
+    /**
      * Hàm focus vào input bị lỗi đầu tiên
      * AUTHOR: YENVTH
      * CreatedDate: 08/10/2022
      */
-    setFocus(){
+    setFocus() {
       try {
         var refName = this.message[0].tittle;
         if (this.$refs[refName]) this.$refs[refName].focus();
@@ -108,7 +122,7 @@ export default {
 
     /**
      * Đóng thông báo
-     * @param { * } isShow 
+     * @param { * } isShow
      */
     closeNotice(isShow) {
       this.isShowPopUp = isShow;
@@ -178,31 +192,24 @@ export default {
         )
         .then((response) => {
           if (response.data) {
-            this.$emit("getEmitShow", true,
+            this.$emit(
+              Constant.EMIT_SHOW,
+              true,
               Resources.INSERT_UNIT_SUCCESS,
-              MISAEnum.Status.Success);
+              MISAEnum.Status.Success
+            );
             this.$emit(Constant.EMIT_UPDATE_ISSHOW, false);
-            this.$emit(Constant.EMIT_LOAD_UNIT,true);
+            this.$emit(Constant.EMIT_LOAD_UNIT, true);
           }
         })
         .catch((error) => {
           console.log(error);
           if (error.response.data.errorCode == 3) {
             this.isLoad = false;
-            this.isShowPopUp = true;
-            this.popUpType = MISAEnum.PopUpType.Error;
-            this.message = [];
-            this.message.push({
-              msg: Resources.DUPLICATE_UNIT,
-            });
+            this.showPopUp(true, MISAEnum.PopUpType.Error, Resources.DUPLICATE_UNIT);
           } else {
             this.isLoad = false;
-            this.isShowPopUp = true;
-            this.popUpType = MISAEnum.PopUpType.Error;
-            this.message = [];
-            this.message.push({
-              msg: error.response.data.userMsg,
-            });
+            this.showPopUp(true, MISAEnum.PopUpType.Error, error.response.data.userMsg);
           }
         });
     },
@@ -224,37 +231,41 @@ export default {
           this.stock
         )
         .then((response) => {
-          if (response.data) { 
-            this.$emit("getEmitShow", true,
+          if (response.data) {
+            this.$emit(
+              Constant.EMIT_SHOW,
+              true,
               Resources.INSERT_STOCK_SUCCESS,
-              MISAEnum.Status.Success);
+              MISAEnum.Status.Success
+            );
             this.$emit(Constant.EMIT_UPDATE_ISSHOW, false);
-            this.$emit(Constant.EMIT_LOAD_STOCK,true);
-           
+            this.$emit(Constant.EMIT_LOAD_STOCK, true);
           }
         })
         .catch((error) => {
           console.log(error);
           if (error.response.data.errorCode == 3) {
             this.isLoad = false;
-            this.isShowPopUp = true;
-            this.popUpType = MISAEnum.PopUpType.Error;
-            this.message = [];
-            this.message.push({
-              msg: Resources.DUPLICATE_STOCK,
-            });
+            this.showPopUp(true, MISAEnum.PopUpType.Error, Resources.DUPLICATE_STOCK);
           } else {
             this.isLoad = false;
-            this.isShowPopUp = true;
-            this.popUpType = MISAEnum.PopUpType.Error;
-            this.message = [];
-            this.message.push({
-              msg: error.response.data.userMsg,
-            });
+            this.showPopUp(true, MISAEnum.PopUpType.Error,error.response.data.userMsg);
           }
         });
     },
-
+     /**
+     *thực hiện show Pop up
+     * AUTHOR: YENVTH
+     * CreatedDate:03/10/2022
+     */
+    showPopUp(isShow, popUpType, message) {
+      this.isShowPopUp = isShow;
+      this.popUpType = popUpType;
+      this.message = [];
+      this.message.push({
+        msg: message,
+      });
+    },
   },
 };
 </script>

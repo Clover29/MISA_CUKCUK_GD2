@@ -33,6 +33,7 @@ export const Constant ={
     EMIT_REMOVE_EVENT:"removeEvent",
     EMIT_UPDATE_TITLE:"update:Title",
     EMIT_FORMATDATE: "formatDate",
+    EMIT_SHOW:"getEmitShow",
     BORDER_CLASS: "border-red",
     TEXT_ADD: "%2B",
     KEY_EVENT:"keydown",
