@@ -1,6 +1,7 @@
 .content__table{
     position: relative;
 height: 85%;
+width: 100%;
 overflow: auto;
 }
 .table__option{
@@ -72,4 +73,8 @@ overflow: auto;
     text-overflow: ellipsis;
     width: 300px;
     max-width: 300px;
+}
+.col-4{
+    min-width: 150px;
+    max-width: 150px;
 }

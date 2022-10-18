@@ -207,15 +207,15 @@
           @dblclick="onUpdateClick()"
           :class="{ row__selected: MaterialID == item.materialID }"
         >
-          <td>{{ item.materialCode }}</td>
+          <td class="col-4">{{ item.materialCode }}</td>
           <td class="text__elipsis" style="width: 200px;">{{ item.materialName }}</td>
-          <td>{{ item.feature }}</td>
-          <td>{{ item.unitName }}</td>
-          <td>{{ item.categoryName }}</td>
+          <td class="col-4">{{ item.feature }}</td>
+          <td class="col-4">{{ item.unitName }}</td>
+          <td class="col-4">{{ item.categoryName }}</td>
           <td class="text__elipsis" :title="item.description">
             {{ item.description }}
           </td>
-          <td class="checkbox__col">
+          <td class="checkbox__col col-4">
             <input
               type="checkbox"
               :checked="item.status == 2"
